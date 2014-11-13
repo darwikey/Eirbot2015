@@ -17,7 +17,7 @@ void TIM8_UP_TIM13_IRQHandler(void) {
 	if (TIM_GetITStatus(TIM8, TIM_IT_Update) == SET) {
 
 
-		//position_update();
+		position_update();
 
 		TIM_ClearFlag(TIM8, TIM_FLAG_Update);
 	}

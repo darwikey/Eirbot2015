@@ -55,8 +55,7 @@ struct ausbee_cs {
   float (*reference_filter)(void *, float);
   void * reference_filter_params;
 
-  float (*measure_fetcher)(void *);
-  void * measure_fetcher_params;
+  float (*measure_fetcher)(void);
 
   float (*measure_filter)(void *, float);
   void * measure_filter_params;
@@ -64,8 +63,7 @@ struct ausbee_cs {
   float (*controller)(void *, float);
   void * controller_params;
 
-  void (*process_command)(void *, float);
-  void * process_command_params;
+  void (*process_command)(float);
 
   float reference;          /*!< The value we want to reach. */
   float filtered_reference; /*!< The value we think we can reach now. */
@@ -82,8 +80,7 @@ void ausbee_cs_set_reference_filter(struct ausbee_cs *cs,
     void * reference_filter_params);
 
 void ausbee_cs_set_measure_fetcher(struct ausbee_cs *cs,
-    float (*measure_fetcher)(void *),
-    void * measure_fetcher_params);
+    float (*measure_fetcher)(void));
 
 void ausbee_cs_set_measure_filter(struct ausbee_cs *cs,
     float (*measure_filter)(void *, float),
@@ -94,8 +91,7 @@ void ausbee_cs_set_controller(struct ausbee_cs *cs,
     void * controller_params);
 
 void ausbee_cs_set_process_command(struct ausbee_cs *cs,
-    void (*process_command)(void *, float),
-    void * process_command_params);
+    void (*process_command)(float));
 
 float ausbee_cs_update(struct ausbee_cs *cs, float measure);
 void    ausbee_cs_manage(void *cs);

@@ -458,9 +458,10 @@ void platform_motor1_init(struct ausbee_l298_chip* motor1) {
 	motor1->TIMx = PLATFORM_TIMER_MOTOR1;
 	platform_motor1_init_io();
 
-	//enum AUSBEE_L298_DRIVER_ERROR error;
-	ausbee_l298_init_chip(*motor1);
-	//if (error==ENO_ERROR)
+	enum AUSBEE_L298_DRIVER_ERROR error;
+	error = ausbee_l298_init_chip(*motor1);
+	if (error!=ENO_ERROR)
+		printf("erreur motor1");
 	//  platform_led_toggle(PLATFORM_LED2);
 	ausbee_l298_enable_chip(*motor1, 1);
 }
@@ -505,6 +506,10 @@ void platform_motor1_init_io(void) {
 	GPIO_Init(PLATFORM_PWM_MOTOR1_PORT, &GPIOInitStruct);
 
 	GPIO_PinAFConfig(PLATFORM_PWM_MOTOR1_PORT, PLATFORM_PWM_MOTOR1_PIN_SOURCE, PLATFORM_PWM_MOTOR1_GPIO_AF);
+	
+	//useless?
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 }
 
 void platform_motor2_init_io(void)

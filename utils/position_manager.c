@@ -44,21 +44,21 @@ void position_init(uint32_t ticks_per_m, double axle_track_mm) {
 void position_update()
 {
 	// Reading encoder value
-	int16_t left_enc_diff = ausbee_encoder_get_diff(PLATFORM_ENC1_TIMER);
-	int16_t right_enc_diff = ausbee_encoder_get_diff(PLATFORM_ENC2_TIMER);
+	int16_t left_enc_diff = ausbee_encoder_get_diff(PLATFORM_ENC2_TIMER);
+	int16_t right_enc_diff = -ausbee_encoder_get_diff(PLATFORM_ENC1_TIMER);
 
 	pm.left_encoder += left_enc_diff;
 	pm.right_encoder += right_enc_diff;
 
-	if (left_enc_diff != 0) {
+	/*if (left_enc_diff != 0) {
 		platform_led_toggle(PLATFORM_LED2);
-		//printf("encG : %d   (sumG : %d)\n\r", (int)left_enc_diff, (int)pm.left_encoder);
+		printf("encG : %d   (sumG : %d)\n\r", (int)left_enc_diff, (int)pm.left_encoder);
 	}
 
 	if (right_enc_diff != 0) {
 		platform_led_toggle(PLATFORM_LED3);
-		//printf("encD : %d   (sumD : %d)\n\r", (int)right_enc_diff, (int)pm.right_encoder);
-	}
+		printf("encD : %d   (sumD : %d)\n\r", (int)right_enc_diff, (int)pm.right_encoder);
+	}*/
 
 
 	// Distance
@@ -73,7 +73,6 @@ void position_update()
 		return;
 	}
 
-	// Angle TODO atan2 ?
 	double angle_diff_rad = atan(
 			position_ticks_to_mm(right_enc_diff - left_enc_diff)
 					/ pm.axle_track_mm);

@@ -17,13 +17,13 @@
 
 #include "utils/motors_wrapper.h"
 
-#define CONTROL_SYSTEM_PERIOD_S 0.1 // 100 ms
+#define CONTROL_SYSTEM_PERIOD_S 0.01 //0.1 // in s
 
-#define DISTANCE_MAX_SPEED 240 // in mm/s
-#define DISTANCE_MAX_ACC   300 // in mm/s^2
+#define DISTANCE_MAX_SPEED 3//240 // in mm/s
+#define DISTANCE_MAX_ACC   1//300 // in mm/s^2
 
-#define ANGLE_MAX_SPEED_DEG 90 // in deg/s
-#define ANGLE_MAX_ACC_DEG   105 // in deg/s^2
+#define ANGLE_MAX_SPEED_DEG 3//90 // in deg/s
+#define ANGLE_MAX_ACC_DEG   1//105 // in deg/s^2
 
 struct control_system {
   struct ausbee_cs csm_right_motor;
@@ -46,21 +46,21 @@ struct control_system {
   float angle_rad_diff;
 };
 
-void control_system_start(struct control_system *);
+void control_system_start();
 
-void control_system_set_distance_mm_ref(struct control_system *am, float ref);
-void control_system_set_angle_deg_ref(struct control_system *am, float ref);
-void control_system_set_right_motor_ref(struct control_system *am, int32_t ref);
-void control_system_set_left_motor_ref(struct control_system *am, int32_t ref);
+void control_system_set_distance_mm_ref(float ref);
+void control_system_set_angle_deg_ref(float ref);
+void control_system_set_right_motor_ref(int32_t ref);
+void control_system_set_left_motor_ref(int32_t ref);
 
-void control_system_set_distance_max_speed(struct control_system *am, float max_speed);
-void control_system_set_distance_max_acc(struct control_system *am, float max_acc);
-void control_system_set_angle_max_speed(struct control_system *am, float max_speed);
-void control_system_set_angle_max_acc(struct control_system *am, float max_acc);
+void control_system_set_distance_max_speed(float max_speed);
+void control_system_set_distance_max_acc(float max_acc);
+void control_system_set_angle_max_speed(float max_speed);
+void control_system_set_angle_max_acc(float max_acc);
 
-void control_system_set_speed_ratio(struct control_system *am, float ratio);
-void control_system_set_speed_high(struct control_system *am);
-void control_system_set_speed_medium(struct control_system *am);
-void control_system_set_speed_low(struct control_system *am);
+void control_system_set_speed_ratio(float ratio);
+void control_system_set_speed_high();
+void control_system_set_speed_medium();
+void control_system_set_speed_low();
 
 #endif /* CONTROL_SYSTEM_H */

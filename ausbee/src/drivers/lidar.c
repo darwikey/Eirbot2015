@@ -25,9 +25,9 @@
 #include <AUSBEE/lidar.h>
 #include "stdio.h"
 
-volatile unsigned char frame[AUSBEE_LIDAR_PICCOLO_FRAME_LENGTH];
-volatile struct ausbee_lidar_data data[AUSBEE_LIDAR_PICCOLO_DATA_LENGTH];
-struct ausbee_lidar_distance distance = {0};
+static uint8_t frame[AUSBEE_LIDAR_PICCOLO_FRAME_LENGTH];
+volatile static struct ausbee_lidar_data data[AUSBEE_LIDAR_PICCOLO_DATA_LENGTH];
+static struct ausbee_lidar_distance distance = {0};
 
 
 // fonction privée

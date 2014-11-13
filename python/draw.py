@@ -20,7 +20,6 @@ pygame.init()
 screen_width = 700
 screen_height = 700
 screen = pygame.display.set_mode((screen_width, screen_height))
-point = pygame.image.load("point.png").convert()
 continuer = 1
 
 def convert_coord(x, y):
@@ -49,7 +48,6 @@ while continuer:
       pygame.draw.line(screen, (128,128,128), convert_coord(i*1000,-6000), convert_coord(i*1000,6000))
       pygame.draw.line(screen, (128,128,128), convert_coord(-6000, i*1000), convert_coord(6000,i*1000))
 
-    pygame.draw.line(screen, (128,128,128), convert_coord(-6000, -2320), convert_coord(6000,-2320))
 
     for el in l:
       try:

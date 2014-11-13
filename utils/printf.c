@@ -186,6 +186,10 @@ signed int PutSignedInt(
     return num;
 }
 
+signed int PutFloat(char *pStr, char fill, signed int width, double value)
+{
+	return PutSignedInt(pStr, fill, width, (int)value);
+}
 
 /**
  * @brief  Writes an hexadecimal value into a string, using the given fill, width &
@@ -328,6 +332,7 @@ signed int vsnprintf(char *pStr, size_t length, const char *pFormat, va_list ap)
             case 'X': num = PutHexa(pStr, fill, width, 1, va_arg(ap, unsigned int)); break;
             case 's': num = PutString(pStr, va_arg(ap, char *)); break;
             case 'c': num = PutChar(pStr, va_arg(ap, unsigned int)); break;
+            case 'f': num = PutFloat(pStr, fill, width, va_arg(ap, double)); break;
             default:
                 return EOF;
             }

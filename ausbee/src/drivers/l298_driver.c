@@ -126,7 +126,7 @@ void ausbee_l298_invert_output(struct ausbee_l298_chip chip, uint8_t dir)
 	}
 }
 
-void ausbee_l298_set_duty_cycle(struct ausbee_l298_chip chip, uint8_t duty_cycle)
+void ausbee_l298_set_duty_cycle(struct ausbee_l298_chip chip, uint32_t duty_cycle)
 {
 	uint32_t duty;
 

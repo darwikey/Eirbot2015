@@ -31,9 +31,9 @@
 #include <AUSBEE/l298_driver.h>
 #include <AUSBEE/control_system_manager.h>
 
-#define AUSBEE_DEBUG_PRINTF 0
+#define AUSBEE_DEBUG_PRINTF 1
 
-#if AUSBEE_DEBUG_PRINTF == 1
+#if AUSBEE_DEBUG_PRINTF == 0
 #include <stdio.h>
 #define debug_printf(args...) do { printf(args); } while(0)
 #else
@@ -75,7 +75,6 @@ void ausbee_cs_init(struct ausbee_cs *cs)
   cs->reference_filter_params = NULL;
 
   cs->measure_fetcher = NULL;
-  cs->measure_fetcher_params = NULL;
 
   cs->measure_filter = NULL;
   cs->measure_filter_params = NULL;
@@ -84,7 +83,6 @@ void ausbee_cs_init(struct ausbee_cs *cs)
   cs->controller_params = NULL;
 
   cs->process_command = NULL;
-  cs->process_command_params = NULL;
 
   cs->reference = 0;
   cs->filtered_reference = 0;
@@ -123,15 +121,12 @@ void ausbee_cs_set_reference_filter(struct ausbee_cs *cs,
  *
  * @param cs                     Control system structure reference.
  * @param measure_fetcher        Function to get the measure value.
- * @param measure_fetcher_params Parameters for the function.
  *
  */
 void ausbee_cs_set_measure_fetcher(struct ausbee_cs *cs,
-    float (*measure_fetcher)(void *),
-    void * measure_fetcher_params)
+    float (*measure_fetcher)(void))
 {
   cs->measure_fetcher = measure_fetcher;
-  cs->measure_fetcher_params = measure_fetcher_params;
 }
 
 /**
@@ -182,15 +177,11 @@ void ausbee_cs_set_controller(struct ausbee_cs *cs,
  *
  * @param cs                     Control system structure reference.
  * @param process_command        Command processing function.
- * @param process_command_params Parameters for the processing function.
  *
  */
-void ausbee_cs_set_process_command(struct ausbee_cs *cs,
-    void (*process_command)(void *, float),
-    void * process_command_params)
+void ausbee_cs_set_process_command(struct ausbee_cs *cs, void (*process_command)(float))
 {
   cs->process_command = process_command;
-  cs->process_command_params = process_command_params;
 }
 
 /**
@@ -205,24 +196,24 @@ void ausbee_cs_set_process_command(struct ausbee_cs *cs,
 float ausbee_cs_update(struct ausbee_cs *cs, float ref)
 {
   cs->reference = ref;
-  debug_printf("[csm] Input reference: %f\r\n", cs->reference);
+  debug_printf("[csm] Input reference: %d\r\n", (int)cs->reference);
 
   cs->filtered_reference = safe_filter(cs->reference_filter, cs->reference_filter_params, cs->reference);
-  debug_printf("[csm] Filtered Reference: %f\r\n", cs->filtered_reference);
+  debug_printf("[csm] Filtered Reference: %d\r\n", (int)cs->filtered_reference);
 
-  cs->measure = cs->measure_fetcher(cs->measure_fetcher_params);
-  debug_printf("[csm] Measure: %f\r\n", cs->measure);
+  cs->measure = cs->measure_fetcher();
+  debug_printf("[csm] Measure: %d\r\n", (int)cs->measure);
 
   cs->filtered_measure = safe_filter(cs->measure_filter, cs->measure_filter_params, cs->measure);
-  debug_printf("[csm] Filtered Measure: %f\r\n", cs->filtered_measure);
+  debug_printf("[csm] Filtered Measure: %d\r\n", (int)cs->filtered_measure);
 
   cs->error = cs->filtered_reference - cs->filtered_measure;
-  debug_printf("[csm] Error: %f\r\n", cs->error);
+  debug_printf("[csm] Error: %d\r\n", (int)cs->error);
 
   cs->command = cs->controller(cs->controller_params, cs->error);
-  debug_printf("[csm] Controller output command: %f\r\n", cs->command);
+  debug_printf("[csm] Controller output command: %d\r\n", (int)cs->command);
 
-  cs->process_command(cs->process_command_params, cs->command);
+  cs->process_command(cs->command);
 
   return cs->command;
 }
