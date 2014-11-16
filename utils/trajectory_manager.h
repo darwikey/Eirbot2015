@@ -10,36 +10,6 @@
 #define TRAJECTORY_DEFAULT_PRECISION_D_MM  10.0
 #define TRAJECTORY_DEFAULT_PRECISION_A_DEG 1.0
 
-enum trajectory_order_type {
-  PAUSE, D, A_ABS, A_REL
-};
-
-enum trajectory_when {
-  NOW, END
-};
-
-struct trajectory_dest {
-  union {
-
-    struct {
-      float mm;
-      float precision;
-    } d;
-
-    struct {
-      float deg;
-      float precision;
-    } a;
-
-  };
-
-  float starting_d_mm;
-  float starting_a_deg;
-  uint8_t is_init;
-  enum trajectory_order_type type;
-};
-
-
 
 void trajectory_init();
 

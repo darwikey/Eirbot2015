@@ -31,9 +31,9 @@
 #include <AUSBEE/l298_driver.h>
 #include <AUSBEE/control_system_manager.h>
 
-#define AUSBEE_DEBUG_PRINTF 1
+#define AUSBEE_DEBUG_PRINTF 0
 
-#if AUSBEE_DEBUG_PRINTF == 0
+#if AUSBEE_DEBUG_PRINTF == 1
 #include <stdio.h>
 #define debug_printf(args...) do { printf(args); } while(0)
 #else

@@ -1,17 +1,43 @@
 #include <stdio.h>
-
 #include "FreeRTOS.h"
 #include "task.h"
-
-#include "utils/position_manager.h"
+#include "position_manager.h"
 #include "trajectory_manager.h"
+
+enum trajectory_order_type {
+  PAUSE, D, A_ABS, A_REL
+};
+
+enum trajectory_when {
+  NOW, END
+};
+
+struct trajectory_dest {
+  union {
+    struct {
+      float mm;
+      float precision;
+    } d;
+
+    struct {
+      float deg;
+      float precision;
+    } a;
+  };
+
+  float starting_d_mm;
+  float starting_a_deg;
+  uint8_t is_init;
+  enum trajectory_order_type type;
+};
+
 
 /******************** Global variable ********************/
 struct trajectory_manager {
   struct trajectory_dest points[TRAJECTORY_MAX_NB_POINTS];
   uint32_t cur_id;
   uint32_t last_id;
-} t;
+} traj;
 
 
 #define ABS(x) (((x) < 0)? -(x): (x))
@@ -19,6 +45,7 @@ struct trajectory_manager {
 /********************   Prototypes   ********************/
 void trajectory_task(void *data);
 static inline void trajectory_update();
+static inline void trajectory_update_smoothly();
 static void trajectory_add_point(struct trajectory_dest point, enum trajectory_when when);
 
 
@@ -26,8 +53,8 @@ static void trajectory_add_point(struct trajectory_dest point, enum trajectory_w
 
 void trajectory_init()
 {
-  t.cur_id = 0;
-  t.last_id = 0;
+  traj.cur_id = 0;
+  traj.last_id = 0;
 }
 
 void trajectory_start()
@@ -37,30 +64,30 @@ void trajectory_start()
 
 void trajectory_end()
 {
-  t.cur_id = t.last_id;
+  traj.cur_id = traj.last_id;
 }
 
 int trajectory_is_ended()
 {
-  return (t.cur_id == t.last_id);
+  return (traj.cur_id == traj.last_id);
 }
 
 void trajectory_next_point()
 {
   /* Update list pointer if not empty */
   if (!trajectory_is_ended()) {
-    t.cur_id = (t.cur_id+1) % TRAJECTORY_MAX_NB_POINTS;
+    traj.cur_id = (traj.cur_id+1) % TRAJECTORY_MAX_NB_POINTS;
   }
 }
 
 uint32_t trajectory_get_cur_id()
 {
-  return t.cur_id;
+  return traj.cur_id;
 }
 
 uint32_t trajectory_get_last_id()
 {
-  return t.last_id;
+  return traj.last_id;
 }
 
 /******************** Movement functions ********************/
@@ -68,7 +95,7 @@ uint32_t trajectory_get_last_id()
 static int trajectory_is_paused()
 {
   return (!trajectory_is_ended() &&
-          (t.points[t.cur_id].type == PAUSE));
+          (traj.points[traj.cur_id].type == PAUSE));
 }
 
 void trajectory_pause()
@@ -80,7 +107,7 @@ void trajectory_pause()
   }
 
   /* Force update now to stop more quickly */
-  trajectory_update(t);
+  trajectory_update(traj);
 }
 
 void trajectory_resume()
@@ -138,7 +165,7 @@ void trajectory_task(void *data)
 
 static inline int trajectory_is_full()
 {
-  return (((t.last_id+1) % TRAJECTORY_MAX_NB_POINTS) == t.cur_id);
+  return (((traj.last_id+1) % TRAJECTORY_MAX_NB_POINTS) == traj.cur_id);
 }
 
 static inline void trajectory_decrease_id(uint32_t *id)
@@ -157,20 +184,20 @@ void trajectory_add_point(struct trajectory_dest point, enum trajectory_when whe
     }
 
     /* New points are added at the end of the list */
-    t.points[t.last_id] = point;
+    traj.points[traj.last_id] = point;
 
     /* Update end of list pointer */
-    t.last_id = (t.last_id + 1) % TRAJECTORY_MAX_NB_POINTS;
+    traj.last_id = (traj.last_id + 1) % TRAJECTORY_MAX_NB_POINTS;
   }
   else if (when == NOW) {
     if (trajectory_is_full()) {
-      trajectory_decrease_id(&(t.last_id));
+      trajectory_decrease_id(&(traj.last_id));
       printf("[trajectory_manager] Warning: List of points is full. Last point was removed.\n");
     }
 
     /* Insert a point before the current one */
-    trajectory_decrease_id(&(t.cur_id));
-    t.points[t.cur_id] = point;
+    trajectory_decrease_id(&(traj.cur_id));
+    traj.points[traj.cur_id] = point;
   }
 }
 
@@ -216,12 +243,12 @@ static void trajectory_manage_order_pause(struct trajectory_dest *p)
 static inline void trajectory_update()
 {
   /* Nothing to do if there is no point in the list */
-  if (t.cur_id == t.last_id) {
+  if (traj.cur_id == traj.last_id) {
     return;
   }
 
   /* Get current point reference */
-  struct trajectory_dest *p = t.points + t.cur_id;
+  struct trajectory_dest *p = traj.points + traj.cur_id;
 
   /* Get current starting position in distance and angle */
   if (!p->is_init) {
@@ -234,6 +261,47 @@ static inline void trajectory_update()
   switch (p->type) {
     case D:
       trajectory_manage_order_d(p);
+      break;
+    case A_ABS:
+      trajectory_manage_order_a_abs(p);
+      break;
+    case A_REL:
+      trajectory_manage_order_a_rel(p);
+      break;
+    case PAUSE:
+      trajectory_manage_order_pause(p);
+      break;
+    default:
+      break;
+  }
+}
+
+// work in progress
+static inline void trajectory_update_smoothly()
+{
+  /* Nothing to do if there is no point in the list */
+  if (traj.cur_id == traj.last_id) {
+    return;
+  }
+
+  /* Get current point reference */
+  struct trajectory_dest *p = traj.points + traj.cur_id;
+
+  /* Get current starting position in distance and angle */
+  /*if (!p->is_init) {
+    p->starting_d_mm = position_get_distance_mm();
+    p->starting_a_deg = position_get_angle_deg();
+    p->is_init = 1;
+  }*/
+
+  //static float target_x = 0;
+  //static float target_y = 0;
+
+
+  /* Set new reference according to point type */
+  switch (p->type) {
+    case D:
+      //float d_mm_ref = p->starting_d_mm + p->d.mm;
       break;
     case A_ABS:
       trajectory_manage_order_a_abs(p);

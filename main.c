@@ -1,6 +1,3 @@
-#include "stm32f4xx_gpio.h"
-#include "stm32f4xx_rcc.h"
-#include "stm32f4xx_usart.h"
 #include "platform.h"
 #include "servo.h"
 #include "l298_driver.h"
@@ -15,6 +12,7 @@
 #include "math.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "cli.h"
 
 
 ausbeeServo servo1;
@@ -35,9 +33,9 @@ int main(void)
 
 	init();
 
-
+	cli_start();
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
-	xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
+	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
 
 	vTaskStartScheduler();
 
@@ -91,7 +89,7 @@ void init(void) {
 
 	// Launching control system
 	control_system_start();
-	control_system_debug_start();
+	//control_system_debug_start();
 
 	// Launching trajectory manager
 	trajectory_init();
@@ -125,60 +123,18 @@ void init(void) {
 
 	motors_wrapper_init(&motor2, &motor1);
 
-	motors_wrapper_motor_set_duty_cycle(LEFT_MOTOR, 0);
-	motors_wrapper_motor_set_duty_cycle(RIGHT_MOTOR, 0);
 
 	printf("end init\n\r");
 }
 
 
-// Interruption
-/*void SysTick_Handler()
-{
-	static s32 timer = 0;
-	static u8 angle = 0;
-
-	if (timer%30==0)
-	{
-		angle++;
-
-		if (angle>100)
-		{
-			angle=0;
-		}
-	}
-
- 	if (timer++ > 3000)
- 	{
- 		timer = 0;
-
- 		//Debug
- 		printf("pos  x = %d,  y = %d \n\r", (int)position_get_x_mm(), (int)position_get_y_mm());
-
- 		// LED
- 		platform_led_toggle(PLATFORM_LED7);
-
-
- 		//motors_wrapper_right_motor_set_duty_cycle(NULL, y + x);
- 		//motors_wrapper_left_motor_set_duty_cycle(NULL, y - x);
-
-#ifdef ENABLE_SERVO
- 		ausbeeSetAngleServo(&servo1, angle);
- 		ausbeeSetAngleServo(&servo2, angle);
- 		ausbeeSetAngleServo(&servo3, angle);
- 		ausbeeSetAngleServo(&servo4, angle);
-#endif
-
- 	}
-
-}
-*/
-
 void demo_square_task(void *data)
 {
   for(;;)
   {
-      trajectory_goto_d_mm(300);
+      //trajectory_goto_d_mm(100);
+	  trajectory_goto_a_rel_deg(160);
+      while(1);
       while(!trajectory_is_ended());
       trajectory_goto_a_rel_deg(90);
       while(!trajectory_is_ended());
@@ -191,7 +147,7 @@ void blink1(void* p)
   for (;;) {
     platform_led_toggle(PLATFORM_LED0);
 
-    vTaskDelay(1000 / portTICK_RATE_MS);
+    vTaskDelay(1000 / portTICK_RATE_MS); // 1000 ms
   }
 }
 

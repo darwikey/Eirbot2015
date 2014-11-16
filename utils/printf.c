@@ -462,6 +462,7 @@ signed int fprintf(FILE *pStream, const char *pFormat, ...)
  *         arguments.
  *
  * @param  pFormat  Format string.
+ * @note doesn't compile when pFormat is just "%c"
  */
 signed int printf(const char *pFormat, ...)
 {

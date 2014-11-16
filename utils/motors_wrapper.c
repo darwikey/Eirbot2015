@@ -7,11 +7,14 @@ static struct motors_wrapper mots = {NULL, NULL, 0, 0};
 void motors_wrapper_init(struct ausbee_l298_chip *left_motor,
                          struct ausbee_l298_chip *right_motor)
 {
-  mots.left_motor  = left_motor;
-  mots.right_motor = right_motor;
+	mots.left_motor  = left_motor;
+	mots.right_motor = right_motor;
 
-  mots.right_motor_moving_forward = 1;
-  mots.left_motor_moving_forward  = 1;
+	mots.right_motor_moving_forward = 1;
+	mots.left_motor_moving_forward  = 1;
+
+	motors_wrapper_motor_set_duty_cycle(LEFT_MOTOR, 0);
+	motors_wrapper_motor_set_duty_cycle(RIGHT_MOTOR, 0);
 }
 
 void motors_wrapper_motor_set_duty_cycle(enum motor id_motor, float duty_cycle)

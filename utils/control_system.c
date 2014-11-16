@@ -36,8 +36,8 @@ static void control_system_set_angle_rad_diff(float ref);
 
 static void control_system_init_distance_angle()
 {
-  ausbee_pid_init(&(am.pid_distance), 0.02, 0, 0); // 2.5, 0.5, 0.5
-  ausbee_pid_init(&(am.pid_angle),    0.02, 0, 0); //3, 0.05, 0// 2, 0.07, 0.1
+  ausbee_pid_init(&(am.pid_distance), 0.0, 0, 0.0);// 2.5, 0.5, 0.5
+  ausbee_pid_init(&(am.pid_angle),    0.03, 0, 0.02); //3, 0.05, 0// 2, 0.07, 0.1
 
   ausbee_pid_set_output_range(&(am.pid_distance), -100, 100);
   ausbee_pid_set_output_range(&(am.pid_angle),  -100, 100);
@@ -94,22 +94,24 @@ void control_system_start()
 
 void control_system_task(void *data)
 {
-  (void)data;
+	(void)data;
 
-  for (;;)
-  {
-	 platform_led_toggle(PLATFORM_LED1);
+	for (;;)
+	{
+		platform_led_toggle(PLATFORM_LED1);
 
-    ausbee_cs_manage(&(am.csm_distance));
-    ausbee_cs_manage(&(am.csm_angle));
+		position_update();
 
-    control_system_set_motors_ref(am.distance_mm_diff, am.angle_rad_diff);
+		ausbee_cs_manage(&(am.csm_distance));
+		ausbee_cs_manage(&(am.csm_angle));
 
-    //ausbee_cs_manage(&(am.csm_right_motor));
-    //ausbee_cs_manage(&(am.csm_left_motor));
+		control_system_set_motors_ref(am.distance_mm_diff, am.angle_rad_diff);
 
-    vTaskDelay(CONTROL_SYSTEM_PERIOD_S * 1000 / portTICK_RATE_MS);
-  }
+		//ausbee_cs_manage(&(am.csm_right_motor));
+		//ausbee_cs_manage(&(am.csm_left_motor));
+
+		vTaskDelay(CONTROL_SYSTEM_PERIOD_S * 1000 / portTICK_RATE_MS);
+	}
 }
 
 static void control_system_set_motors_ref(float d_mm, float theta)
@@ -207,4 +209,14 @@ void control_system_set_speed_medium()
 void control_system_set_speed_low()
 {
   control_system_set_speed_ratio(0.5);
+}
+
+struct ausbee_pid* control_system_get_pid_distance()
+{
+	return &am.pid_distance;
+}
+
+struct ausbee_pid* control_system_get_pid_angle()
+{
+	return &am.pid_angle;
 }

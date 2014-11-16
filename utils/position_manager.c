@@ -73,9 +73,7 @@ void position_update()
 		return;
 	}
 
-	double angle_diff_rad = atan(
-			position_ticks_to_mm(right_enc_diff - left_enc_diff)
-					/ pm.axle_track_mm);
+	double angle_diff_rad = atan(position_ticks_to_mm(right_enc_diff - left_enc_diff) / pm.axle_track_mm);
 
 	// Special case: only rotation -> no need to update x and y
 	if ((right_enc_diff + left_enc_diff) == 0) {
@@ -84,8 +82,7 @@ void position_update()
 	}
 
 	// Radius of curvature
-	double r = pm.axle_track_mm / 2.0 * (right_enc_diff + left_enc_diff)
-			/ (right_enc_diff - left_enc_diff);
+	double r = pm.axle_track_mm / 2.0 * (right_enc_diff + left_enc_diff) / (right_enc_diff - left_enc_diff);
 
 	// Trajectory circle center coordinates
 	double x0_mm = pm.x_mm - r * cos(pm.angle_rad);
@@ -97,7 +94,12 @@ void position_update()
 	pm.y_mm = y0_mm + r * sin(pm.angle_rad);
 }
 
-uint32_t position_get_axle_track_mm(void) {
+void position_set_axle_track_mm(double axle_track_mm)
+{
+	pm.axle_track_mm = axle_track_mm;
+}
+
+double position_get_axle_track_mm(void) {
 	return pm.axle_track_mm;
 }
 

@@ -17,13 +17,13 @@
 
 #include "utils/motors_wrapper.h"
 
-#define CONTROL_SYSTEM_PERIOD_S 0.01 //0.1 // in s
+#define CONTROL_SYSTEM_PERIOD_S 0.02 //0.1 // in s
 
-#define DISTANCE_MAX_SPEED 3//240 // in mm/s
-#define DISTANCE_MAX_ACC   1//300 // in mm/s^2
+#define DISTANCE_MAX_SPEED 240//240 // in mm/s
+#define DISTANCE_MAX_ACC   300//300 // in mm/s^2
 
-#define ANGLE_MAX_SPEED_DEG 3//90 // in deg/s
-#define ANGLE_MAX_ACC_DEG   1//105 // in deg/s^2
+#define ANGLE_MAX_SPEED_DEG 300//90 // in deg/s
+#define ANGLE_MAX_ACC_DEG   850//105 // in deg/s^2
 
 struct control_system {
   struct ausbee_cs csm_right_motor;
@@ -62,5 +62,8 @@ void control_system_set_speed_ratio(float ratio);
 void control_system_set_speed_high();
 void control_system_set_speed_medium();
 void control_system_set_speed_low();
+
+struct ausbee_pid* control_system_get_pid_distance();
+struct ausbee_pid* control_system_get_pid_angle();
 
 #endif /* CONTROL_SYSTEM_H */

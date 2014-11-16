@@ -15,7 +15,8 @@ void position_init(uint32_t ticks_per_m, double axle_track_mm);
 
 void position_update();
 
-uint32_t position_get_axle_track_mm(void);
+void position_set_axle_track_mm(double axle_track_mm);
+double position_get_axle_track_mm(void);
 
 float position_get_left_encoder(void);
 float position_get_right_encoder(void);
