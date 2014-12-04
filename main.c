@@ -33,6 +33,7 @@ int main(void)
 
 	init();
 
+
 	cli_start();
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );

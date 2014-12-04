@@ -17,7 +17,8 @@
 
 #include <AUSBEE/pid.h>
 
-#include "utils/position_manager.h"
+#include "position_manager.h"
+#include "motors_wrapper.h"
 #include "control_system.h"
 #include "platform.h"
 
@@ -36,8 +37,8 @@ static void control_system_set_angle_rad_diff(float ref);
 
 static void control_system_init_distance_angle()
 {
-  ausbee_pid_init(&(am.pid_distance), 0.0, 0, 0.0);// 2.5, 0.5, 0.5
-  ausbee_pid_init(&(am.pid_angle),    0.03, 0, 0.02); //3, 0.05, 0// 2, 0.07, 0.1
+  ausbee_pid_init(&(am.pid_distance), 0.03, 0.0005, 0.0);// 2.5, 0.5, 0.5
+  ausbee_pid_init(&(am.pid_angle),    0.03, 0.0005, 0.0); //3, 0.05, 0// 2, 0.07, 0.1
 
   ausbee_pid_set_output_range(&(am.pid_distance), -100, 100);
   ausbee_pid_set_output_range(&(am.pid_angle),  -100, 100);
@@ -121,7 +122,7 @@ static void control_system_set_motors_ref(float d_mm, float theta)
   int32_t right_motor_ref = position_mm_to_ticks(d_mm + (1.0 * axle_track_mm * theta) / 2);
   int32_t left_motor_ref  = position_mm_to_ticks(d_mm - (1.0 * axle_track_mm * theta) / 2);
 
-  printf("cmd right %d   left %d\r\n", (int)right_motor_ref, (int)left_motor_ref);
+  //printf("cmd right %d   left %d\r\n", (int)right_motor_ref, (int)left_motor_ref);
 
   motors_wrapper_motor_set_duty_cycle(RIGHT_MOTOR, right_motor_ref);
   motors_wrapper_motor_set_duty_cycle(LEFT_MOTOR, left_motor_ref);

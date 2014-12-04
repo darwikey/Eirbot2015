@@ -27,8 +27,14 @@ static int cli_getchar(void)
   if (c == CLI_END_CHAR) {
     printf("\r\n");
   }
-  else {
-	  printf("%c ", (char)c);
+  else if (c == CLI_DEL_CHAR)
+  {
+	  return c;
+  }
+  else
+  {
+	  char s[2] = {c, '\0'};
+	  printf("%s", s);
   }
 
   return c;
@@ -66,10 +72,20 @@ static void cli_getstr(char *buff, uint8_t str_length)
   while (((c = cli_getchar()) != EOF) && ((char)c == CLI_DELIMITER));
 
   do {
-    buff[i++] = (char)c;
+	  if (c == CLI_DEL_CHAR)
+	  {
+		  if (i > 0)
+		  {
+			  buff[--i] = 0;
+		  }
+	  }
+	  else
+	  {
+		  buff[i++] = (char)c;
+	  }
 
-    if (i > str_length)
-      break;
+	  if (i > str_length)
+		  break;
 
   } while (((c = cli_getchar()) != EOF) && ((char)c != CLI_DELIMITER) && ((char) c != CLI_END_CHAR));
 }

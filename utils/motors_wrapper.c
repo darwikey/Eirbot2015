@@ -22,6 +22,15 @@ void motors_wrapper_motor_set_duty_cycle(enum motor id_motor, float duty_cycle)
 	struct ausbee_l298_chip *motor = NULL;
 	uint8_t* moving_forward = NULL;
 
+	if (duty_cycle > 60)
+	{
+		duty_cycle = 60;
+	}
+	else if(duty_cycle < -60)
+	{
+		duty_cycle = -60;
+	}
+
 	if (id_motor == LEFT_MOTOR) {
 		motor = mots.left_motor;
 		moving_forward = &mots.left_motor_moving_forward;

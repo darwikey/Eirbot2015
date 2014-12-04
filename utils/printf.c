@@ -6,6 +6,7 @@
  ********************************************************************************/
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
 #include "platform.h"
 
 /**
@@ -120,11 +121,7 @@ signed int PutUnsignedInt(
  * @param width  Minimum integer width.
  * @param value  Signed integer value.
  */
-signed int PutSignedInt(
-    char *pStr,
-    char fill,
-    signed int width,
-    signed int value)
+signed int PutSignedInt(char *pStr, char fill, signed int width, signed int value)
 {
     signed int num = 0;
     unsigned int absolute;
@@ -188,7 +185,21 @@ signed int PutSignedInt(
 
 signed int PutFloat(char *pStr, char fill, signed int width, double value)
 {
-	return PutSignedInt(pStr, fill, width, (int)value);
+	int a = PutSignedInt(pStr, fill, width, (int) value);
+
+	pStr += a;
+	a += PutChar(pStr, '.');
+	pStr ++;
+
+	if (value < 0)
+	{
+		value = -value;
+	}
+
+	double f = (value - floor(value)) * 10000.0;
+	a += PutSignedInt(pStr, '0', 4, (int)f);
+
+	return a;
 }
 
 /**

@@ -15,15 +15,13 @@
 #include <AUSBEE/diff.h>
 #include <AUSBEE/quadramp.h>
 
-#include "utils/motors_wrapper.h"
-
 #define CONTROL_SYSTEM_PERIOD_S 0.02 //0.1 // in s
 
 #define DISTANCE_MAX_SPEED 240//240 // in mm/s
 #define DISTANCE_MAX_ACC   300//300 // in mm/s^2
 
-#define ANGLE_MAX_SPEED_DEG 300//90 // in deg/s
-#define ANGLE_MAX_ACC_DEG   850//105 // in deg/s^2
+#define ANGLE_MAX_SPEED_DEG 180//90 // in deg/s
+#define ANGLE_MAX_ACC_DEG   360//105 // in deg/s^2
 
 struct control_system {
   struct ausbee_cs csm_right_motor;
