@@ -42,6 +42,7 @@ void init_can_rx_interrupt()
 void init_can()
 {
   platform_can_init(CAN1);
+
   CAN_InitTypeDef CAN_InitTypeDef_1;
   CAN_FilterInitTypeDef CAN_FilterInitStructure;
   CAN_StructInit(&CAN_InitTypeDef_1);
@@ -50,7 +51,7 @@ void init_can()
   CAN_InitTypeDef_1.CAN_AWUM = ENABLE;
   CAN_InitTypeDef_1.CAN_TXFP = ENABLE;
   if(CAN_Init(CAN1, &CAN_InitTypeDef_1) == CAN_InitStatus_Failed) {
-    platform_led_set(PLATFORM_LED2);
+    platform_led_set(PLATFORM_LED6);
     while(1);
   }
 

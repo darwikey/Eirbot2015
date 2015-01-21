@@ -14,6 +14,7 @@
 #include <stm32f4xx_rcc.h>
 #include <stm32f4xx_can.h>
 #include "l298_driver.h"
+#include "lm18200_driver.h"
 
 /**********
  * Clocks *
@@ -43,19 +44,20 @@
 /**********
  * Motors *
  *********/
-/* ENABLE */
+/* Parametres pour drivers L298
+// ENABLE
 #define PLATFORM_ENABLE_MOTOR1_PIN GPIO_Pin_0
 #define PLATFORM_ENABLE_MOTOR1_PORT GPIOE
 #define PLATFORM_ENABLE_MOTOR2_PIN GPIO_Pin_1
 #define PLATFORM_ENABLE_MOTOR2_PORT GPIOE
 
-/* DIR */
+// DIR
 #define PLATFORM_DIR_MOTOR1_PIN GPIO_Pin_2
 #define PLATFORM_DIR_MOTOR1_PORT GPIOE
 #define PLATFORM_DIR_MOTOR2_PIN GPIO_Pin_3
 #define PLATFORM_DIR_MOTOR2_PORT GPIOE
 
-/* PWM */
+// PWM
 #define PLATFORM_PWM_MOTOR1_PIN GPIO_Pin_5
 #define PLATFORM_PWM_MOTOR1_PORT GPIOE
 #define PLATFORM_PWM_MOTOR1_PIN_SOURCE GPIO_PinSource5
@@ -66,7 +68,27 @@
 #define PLATFORM_PWM_MOTOR2_GPIO_AF GPIO_AF_TIM9
 #define PLATFORM_TIMER_MOTOR1 TIM9
 #define PLATFORM_TIMER_MOTOR2 TIM9
+*/
 
+// DIR
+#define PLATFORM_DIR_MOTOR1_PIN GPIO_Pin_2
+#define PLATFORM_DIR_MOTOR1_PORT GPIOG
+#define PLATFORM_DIR_MOTOR2_PIN GPIO_Pin_3
+#define PLATFORM_DIR_MOTOR2_PORT GPIOG
+
+// PWM
+#define PLATFORM_PWM_MOTOR1_PIN GPIO_Pin_14
+#define PLATFORM_PWM_MOTOR1_PORT GPIOD
+#define PLATFORM_PWM_MOTOR1_PIN_SOURCE GPIO_PinSource14
+#define PLATFORM_PWM_MOTOR1_GPIO_AF GPIO_AF_TIM4
+#define PLATFORM_PWM_MOTOR2_PIN GPIO_Pin_15
+#define PLATFORM_PWM_MOTOR2_PORT GPIOD
+#define PLATFORM_PWM_MOTOR2_PIN_SOURCE GPIO_PinSource15
+#define PLATFORM_PWM_MOTOR2_GPIO_AF GPIO_AF_TIM4
+#define PLATFORM_TIMER_MOTOR1 TIM4
+#define PLATFORM_CHANNEL_MOTOR1 3
+#define PLATFORM_TIMER_MOTOR2 TIM4
+#define PLATFORM_CHANNEL_MOTOR2 4
 
 /************
  * Encoders *
@@ -185,8 +207,10 @@ uint8_t platform_gpio_get_value(uint16_t gpio);
 
 int platform_usart_init(USART_TypeDef *USARTx, uint32_t baudrate);
 
-void platform_motor1_init(struct ausbee_l298_chip* motor1);
-void platform_motor2_init(struct ausbee_l298_chip* motor2);
+void platform_motor1_init(ausbee_lm18200_chip* motor1);
+void platform_motor2_init(ausbee_lm18200_chip* motor2);
+//void platform_motor1_init(struct ausbee_l298_chip* motor1);
+//void platform_motor2_init(struct ausbee_l298_chip* motor2);
 
 void platform_encoder_init(void);
 

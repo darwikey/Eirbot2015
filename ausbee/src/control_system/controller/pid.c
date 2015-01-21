@@ -115,6 +115,7 @@ void ausbee_pid_set_kp(struct ausbee_pid *pid, float Kp)
 
 void ausbee_pid_set_ki(struct ausbee_pid *pid, float Ki)
 {
+  pid->error_sum = 0;
   pid->Ki = Ki;
 }
 

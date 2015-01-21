@@ -19,26 +19,21 @@
  * Authors :    Kevin JOLY <joly.kevin25@gmail.com>
  *
  **********************************************************************/
-#ifndef LIBAUSBEE_L298_DRIVER_H
-#define LIBAUSBEE_L298_DRIVER_H
+#ifndef LIBAUSBEE_LM18200_DRIVER_H
+#define LIBAUSBEE_LM18200_DRIVER_H
 
 #include <stm32f4xx_tim.h>
 
-enum AUSBEE_L298_DRIVER_ERROR {ENO_ERROR = 0x0, EINVALID_FREQUENCY = 0x1, EINVALID_DUTY = 0x2, EINVALID_TIMER_CHANNEL = 0x4};
-
-struct ausbee_l298_chip{
+typedef struct {
 	uint8_t timer_channel;
-	uint16_t gpio_enable_pin;
 	uint16_t gpio_dir_pin;
 	uint32_t pwm_frequency;
 	GPIO_TypeDef* gpio_dir_port;
-	GPIO_TypeDef* gpio_enable_port;
 	TIM_TypeDef *TIMx;
-};
+} ausbee_lm18200_chip;
 
-enum AUSBEE_L298_DRIVER_ERROR ausbee_l298_init_chip(struct ausbee_l298_chip* chip);
-void ausbee_l298_enable_chip(struct ausbee_l298_chip* chip, uint8_t enable);
-void ausbee_l298_invert_output(struct ausbee_l298_chip* chip, uint8_t enable);
-void ausbee_l298_set_duty_cycle(struct ausbee_l298_chip* chip, uint32_t duty_cycle);
+void ausbee_lm18200_init_chip(ausbee_lm18200_chip* chip);
+void ausbee_lm18200_invert_output(ausbee_lm18200_chip* chip, uint8_t enable);
+void ausbee_lm18200_set_duty_cycle(ausbee_lm18200_chip* chip, uint32_t duty_cycle);
 
 #endif

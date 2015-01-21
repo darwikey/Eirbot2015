@@ -17,11 +17,11 @@
 
 #define CONTROL_SYSTEM_PERIOD_S 0.02 //0.1 // in s
 
-#define DISTANCE_MAX_SPEED 240//240 // in mm/s
+#define DISTANCE_MAX_SPEED 150//240//240 // in mm/s
 #define DISTANCE_MAX_ACC   300//300 // in mm/s^2
 
-#define ANGLE_MAX_SPEED_DEG 180//90 // in deg/s
-#define ANGLE_MAX_ACC_DEG   360//105 // in deg/s^2
+#define ANGLE_MAX_SPEED_DEG 75//180//90 // in deg/s
+#define ANGLE_MAX_ACC_DEG   180//360//105 // in deg/s^2
 
 struct control_system {
   struct ausbee_cs csm_right_motor;
@@ -48,6 +48,7 @@ void control_system_start();
 
 void control_system_set_distance_mm_ref(float ref);
 void control_system_set_angle_deg_ref(float ref);
+void control_system_set_angle_rad_ref(float ref_rad);
 void control_system_set_right_motor_ref(int32_t ref);
 void control_system_set_left_motor_ref(int32_t ref);
 

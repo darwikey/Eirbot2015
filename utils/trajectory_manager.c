@@ -4,6 +4,8 @@
 #include "position_manager.h"
 #include "trajectory_manager.h"
 
+#define SMOOTH_TRAJ 1
+
 enum trajectory_order_type {
   PAUSE, D, A_ABS, A_REL
 };
@@ -25,6 +27,11 @@ struct trajectory_dest {
     } a;
   };
 
+#if SMOOTH_TRAJ
+  float x;
+  float y;
+#endif
+
   float starting_d_mm;
   float starting_a_deg;
   uint8_t is_init;
@@ -41,6 +48,7 @@ struct trajectory_manager {
 
 
 #define ABS(x) (((x) < 0)? -(x): (x))
+#define SQUARE(x) (x*x)
 
 /********************   Prototypes   ********************/
 void trajectory_task(void *data);
@@ -158,7 +166,12 @@ void trajectory_task(void *data)
   (void)data;
 
   for (;;) {
+#if SMOOTH_TRAJ
+    trajectory_update_smoothly();
+#else
     trajectory_update();
+#endif
+
     vTaskDelay(TRAJECTORY_UPDATE_PERIOD_S * 1000 / portTICK_RATE_MS);
   }
 }
@@ -279,40 +292,46 @@ static inline void trajectory_update()
 // work in progress
 static inline void trajectory_update_smoothly()
 {
-  /* Nothing to do if there is no point in the list */
-  if (traj.cur_id == traj.last_id) {
-    return;
-  }
+	/* Nothing to do if there is no point in the list */
+	if (traj.cur_id == traj.last_id) {
+		return;
+	}
 
-  /* Get current point reference */
-  struct trajectory_dest *p = traj.points + traj.cur_id;
+	/* Get current point reference */
+	struct trajectory_dest *p = traj.points + traj.cur_id;
 
-  /* Get current starting position in distance and angle */
-  /*if (!p->is_init) {
-    p->starting_d_mm = position_get_distance_mm();
-    p->starting_a_deg = position_get_angle_deg();
-    p->is_init = 1;
-  }*/
+	/* Get current starting position in distance and angle */
+	/*if (!p->is_init) {
+		p->starting_d_mm = position_get_distance_mm();
+		p->starting_a_deg = position_get_angle_deg();
+		p->is_init = 1;
+	}*/
 
-  //static float target_x = 0;
-  //static float target_y = 0;
+	//static float target_x = 0;
+	//static float target_y = 0;
 
 
   /* Set new reference according to point type */
-  switch (p->type) {
-    case D:
-      //float d_mm_ref = p->starting_d_mm + p->d.mm;
-      break;
-    case A_ABS:
-      trajectory_manage_order_a_abs(p);
-      break;
-    case A_REL:
-      trajectory_manage_order_a_rel(p);
-      break;
-    case PAUSE:
-      trajectory_manage_order_pause(p);
-      break;
-    default:
-      break;
-  }
+	switch (p->type) {
+		case D:
+			//float d_mm_ref = p->starting_d_mm + p->d.mm;
+			break;
+
+		case A_ABS:
+			trajectory_manage_order_a_abs(p);
+			break;
+
+		case A_REL:
+			trajectory_manage_order_a_rel(p);
+			break;
+
+		case PAUSE:
+			trajectory_manage_order_pause(p);
+			break;
+
+		default:
+			break;
+	}
+
+	float _WaypointDistance = sqrtf(SQUARE(position_get_x_mm() - _nextWaypoint_x) + SQUARE(position_get_y_mm() * _nextWaypoint_y));
 }
