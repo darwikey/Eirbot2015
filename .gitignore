@@ -1,4 +1,12 @@
 *.cogui
 *.comarker
 *.coproj
+*.pbxproj
 
+*.o
+*.obj
+*.elf
+*.hex
+*.xml
+*.hex
+*.map
