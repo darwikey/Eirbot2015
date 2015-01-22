@@ -3,6 +3,7 @@
 #include "l298_driver.h"
 #include "position_manager.h"
 #include "trajectory_manager.h"
+#include "astar.h"
 #include "control_system_debug.h"
 #include "init.h"
 #include "stdio.h"
@@ -38,6 +39,11 @@ int main(void)
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
 
+
+	set_startCoor( 12+G_LENGTH*20);
+	set_goalCoor(55 + G_LENGTH*35);
+	printf("blablabla je fais des test");
+	astarMv();
 	vTaskStartScheduler();
 
 	while (1) {
@@ -141,6 +147,8 @@ void demo_square_task(void *data)
       while(!trajectory_is_ended());
   }
 }
+
+
 
 
 void blink1(void* p)
