@@ -51,7 +51,7 @@ int main(void)
 	smooth_traj_goto_xy_mm(200, 600);
 	smooth_traj_goto_xy_mm(0, 1000);
 
-
+	vTaskStartScheduler();
 	while (1) {
 
 		//platform_led_set(PLATFORM_LED0);
