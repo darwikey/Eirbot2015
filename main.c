@@ -1,9 +1,11 @@
 #include "platform.h"
 #include "servo.h"
 #include "l298_driver.h"
+#include "lm18200_driver.h"
 #include "position_manager.h"
 #include "trajectory_manager.h"
 #include "astar.h"
+#include "smooth_traj_manager.h"
 #include "control_system_debug.h"
 #include "init.h"
 #include "stdio.h"
@@ -20,13 +22,14 @@ ausbeeServo servo1;
 ausbeeServo servo2;
 ausbeeServo servo3;
 ausbeeServo servo4;
-struct ausbee_l298_chip motor1;
-struct ausbee_l298_chip motor2;
+ausbee_lm18200_chip motor1;
+ausbee_lm18200_chip motor2;
 
 /* Private function prototypes -----------------------------------------------*/
 void init(void);
 void blink1(void* p);
 void demo_square_task(void*);
+void send_by_can(int);
 
 
 int main(void)
@@ -34,17 +37,20 @@ int main(void)
 
 	init();
 
+	//motors_wrapper_test();
 
-	cli_start();
+	cli_start(); //invité de commande
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
 
 
-	set_startCoor( 12+G_LENGTH*20);
-	set_goalCoor(55 + G_LENGTH*35);
-	printf("blablabla je fais des test");
-	astarMv();
-	vTaskStartScheduler();
+	//send_by_can(1);
+
+
+	smooth_traj_goto_xy_mm(0, 300);
+	smooth_traj_goto_xy_mm(200, 600);
+	smooth_traj_goto_xy_mm(0, 1000);
+
 
 	while (1) {
 
@@ -90,17 +96,18 @@ void init(void) {
 	platform_pwm_init(TIMERALL);
 	platform_led_init();
 
+	init_can();
 	init_lidar();
 	init_encoders();
 	position_init(41826, 315);
 
 	// Launching control system
 	control_system_start();
-	//control_system_debug_start();
+	//control_system_debug_start(); // use printf to debug control system
 
 	// Launching trajectory manager
-	trajectory_init();
-	trajectory_start();
+	smooth_traj_init();
+	smooth_traj_start();
 
 
 #ifdef ENABLE_SERVO
@@ -128,7 +135,7 @@ void init(void) {
 	platform_motor1_init(&motor1);
 	platform_motor2_init(&motor2);
 
-	motors_wrapper_init(&motor2, &motor1);
+	motors_wrapper_init_lm18200(&motor2, &motor1);
 
 
 	printf("end init\n\r");
@@ -139,15 +146,55 @@ void demo_square_task(void *data)
 {
   for(;;)
   {
-      //trajectory_goto_d_mm(100);
-	  trajectory_goto_a_rel_deg(160);
-      while(1);
-      while(!trajectory_is_ended());
+      /*trajectory_goto_d_mm(100);
+	  while(!trajectory_is_ended());
       trajectory_goto_a_rel_deg(90);
-      while(!trajectory_is_ended());
+      while(!trajectory_is_ended());*/
   }
 }
 
+void send_by_can(int cmd){
+
+	CanTxMsg CAN_Tx;
+
+	if(cmd == 1)
+	{
+		CAN_Tx.StdId = 0x80;
+		CAN_Tx.Data[0] = 1;
+	}
+
+	else if(cmd == 2)
+	{
+		CAN_Tx.StdId = 0x81;
+		CAN_Tx.Data[0] = 1;
+	}
+
+	CAN_Tx.ExtId = 0;
+	CAN_Tx.IDE = CAN_Id_Standard; // format
+	CAN_Tx.RTR = CAN_RTR_Data; // on transmet une donnée
+	CAN_Tx.DLC = 1; // longueur du tableau data
+
+	uint8_t mailbox_number = CAN_Transmit(CAN1, &CAN_Tx);
+
+	uint8_t transmit_status = CAN_TransmitStatus(CAN1, mailbox_number);
+	while(transmit_status != CAN_TxStatus_Ok)
+	{
+		transmit_status = CAN_TransmitStatus(CAN1, mailbox_number);
+		if(transmit_status == CAN_TxStatus_Ok)
+		{
+			platform_led_set(PLATFORM_LED4);
+			platform_led_reset(PLATFORM_LED7);
+		}
+		else if( transmit_status == CAN_TxStatus_Pending)
+		{
+			platform_led_set(PLATFORM_LED7);
+		}
+		else
+		{
+			platform_led_set(PLATFORM_LED6);
+		}
+	}
+}
 
 
 

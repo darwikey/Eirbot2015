@@ -137,11 +137,11 @@ void cli_task(void *data)
     }
 
     if (command == 'd') {
-      trajectory_goto_d_mm(value);
+      //trajectory_goto_d_mm(value);
       printf("Distance: %f\r\n", (double)value);
     }
     else if (command == 'a') {
-      trajectory_goto_a_rel_deg(value);
+      //trajectory_goto_a_rel_deg(value);
       printf("Angle: %f\r\n", (double)value);
     }
     else if (command == 's') {
@@ -212,12 +212,12 @@ void cli_task(void *data)
       else if (!strncmp(arg, "enc_l", ARG_LENGTH)) {
         printf("Left encoder value: %f\r\n", (double)position_get_left_encoder());
       }
-      else if (!strncmp(arg, "cur_id", ARG_LENGTH)) {
+      /*else if (!strncmp(arg, "cur_id", ARG_LENGTH)) {
         printf("Traj manager cur_id: %d\r\n", (int)trajectory_get_cur_id());
       }
       else if (!strncmp(arg, "last_id", ARG_LENGTH)) {
         printf("Traj manager last_id: %d\r\n", (int)trajectory_get_last_id());
-      }
+      }*/
       else if (!strncmp(arg, "pid", ARG_LENGTH)) {
         printf("Distance PID: %f, %f, %f\r\n", (double)ausbee_pid_get_kp(control_system_get_pid_distance()),
                                                (double)ausbee_pid_get_ki(control_system_get_pid_distance()),

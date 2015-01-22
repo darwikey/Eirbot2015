@@ -12,6 +12,7 @@
 #include "platform.h"
 #include "encoder.h"
 #include "l298_driver.h"
+#include "lm18200_driver.h"
 
 //Private functions
 void platform_motor1_init_io(void);
@@ -448,7 +449,80 @@ void platform_led_toggle(uint8_t led) {
 		GPIO_ToggleBits(GPIOG, GPIO_Pin_14);
 }
 
-void platform_motor1_init(struct ausbee_l298_chip* motor1) {
+
+void platform_motor1_init(ausbee_lm18200_chip* motor1) {
+	motor1->timer_channel = PLATFORM_CHANNEL_MOTOR1;
+	motor1->gpio_dir_pin = PLATFORM_DIR_MOTOR1_PIN;
+	motor1->pwm_frequency = 10000;
+	motor1->gpio_dir_port = PLATFORM_DIR_MOTOR1_PORT;
+	motor1->TIMx = PLATFORM_TIMER_MOTOR1;
+	platform_motor1_init_io();
+
+	ausbee_lm18200_init_chip(motor1);
+}
+
+void platform_motor2_init(ausbee_lm18200_chip* motor2) {
+	motor2->timer_channel = PLATFORM_CHANNEL_MOTOR2;
+	motor2->gpio_dir_pin = PLATFORM_DIR_MOTOR2_PIN;
+	motor2->pwm_frequency = 10000;
+	motor2->gpio_dir_port = PLATFORM_DIR_MOTOR2_PORT;
+	motor2->TIMx = PLATFORM_TIMER_MOTOR2;
+	platform_motor2_init_io();
+
+	ausbee_lm18200_init_chip(motor2);
+}
+
+void platform_motor1_init_io(void) {
+	// Set clocks
+	platform_enable_clock_timer(PLATFORM_TIMER_MOTOR1);
+	platform_enable_clock_gpio(PLATFORM_DIR_MOTOR1_PORT);
+	platform_enable_clock_gpio(PLATFORM_PWM_MOTOR1_PORT);
+
+	GPIO_InitTypeDef GPIOInitStruct;
+	GPIO_StructInit(&GPIOInitStruct);
+	GPIOInitStruct.GPIO_Pin = PLATFORM_DIR_MOTOR1_PIN;
+	GPIOInitStruct.GPIO_Mode = GPIO_Mode_OUT;
+	GPIOInitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_Init(PLATFORM_DIR_MOTOR1_PORT, &GPIOInitStruct);
+
+	/* Init AF output */
+	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_MOTOR1_PIN;
+	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_Init(PLATFORM_PWM_MOTOR1_PORT, &GPIOInitStruct);
+
+	GPIO_PinAFConfig(PLATFORM_PWM_MOTOR1_PORT, PLATFORM_PWM_MOTOR1_PIN_SOURCE, PLATFORM_PWM_MOTOR1_GPIO_AF);
+
+	//useless?
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
+}
+
+void platform_motor2_init_io(void)
+{
+	// Set clocks
+	platform_enable_clock_timer(PLATFORM_TIMER_MOTOR2);
+	platform_enable_clock_gpio(PLATFORM_DIR_MOTOR2_PORT);
+	platform_enable_clock_gpio(PLATFORM_PWM_MOTOR2_PORT);
+
+
+	/* Init DIR signal */
+	GPIO_InitTypeDef GPIOInitStruct;
+	GPIO_StructInit(&GPIOInitStruct);
+	GPIOInitStruct.GPIO_Pin = PLATFORM_DIR_MOTOR2_PIN;
+	GPIOInitStruct.GPIO_Mode = GPIO_Mode_OUT;
+	GPIOInitStruct.GPIO_Speed = GPIO_Speed_100MHz;
+	GPIO_Init(PLATFORM_DIR_MOTOR2_PORT, &GPIOInitStruct);
+
+	/* Init AF output */
+	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_MOTOR2_PIN;
+	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_Init(PLATFORM_PWM_MOTOR2_PORT, &GPIOInitStruct);
+
+	GPIO_PinAFConfig(PLATFORM_PWM_MOTOR2_PORT, PLATFORM_PWM_MOTOR2_PIN_SOURCE, PLATFORM_PWM_MOTOR2_GPIO_AF);
+}
+
+
+// Motor config for L298
+/*void platform_motor1_init(struct ausbee_l298_chip* motor1) {
 	motor1->timer_channel = 1;
 	motor1->gpio_enable_pin = PLATFORM_ENABLE_MOTOR1_PIN;
 	motor1->gpio_dir_pin = PLATFORM_DIR_MOTOR1_PIN;
@@ -496,11 +570,11 @@ void platform_motor1_init_io(void) {
 	GPIOInitStruct.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_Init(PLATFORM_DIR_MOTOR1_PORT, &GPIOInitStruct);
 
-	/* Init ENABLE for L298 */
+	// Init ENABLE for L298
 	GPIOInitStruct.GPIO_Pin = PLATFORM_ENABLE_MOTOR1_PIN;
 	GPIO_Init(PLATFORM_ENABLE_MOTOR1_PORT, &GPIOInitStruct);
 
-	/* Init AF output */
+	// Init AF output
 	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_MOTOR1_PIN;
 	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_Init(PLATFORM_PWM_MOTOR1_PORT, &GPIOInitStruct);
@@ -521,7 +595,7 @@ void platform_motor2_init_io(void)
 	platform_enable_clock_gpio(PLATFORM_PWM_MOTOR2_PORT);
 
 
-	/* Init DIR signal for L298 */
+	// Init DIR signal for L298
 	GPIO_InitTypeDef GPIOInitStruct;
 	GPIO_StructInit(&GPIOInitStruct);
 	GPIOInitStruct.GPIO_Pin = PLATFORM_DIR_MOTOR2_PIN;
@@ -529,17 +603,17 @@ void platform_motor2_init_io(void)
 	GPIOInitStruct.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_Init(PLATFORM_DIR_MOTOR2_PORT, &GPIOInitStruct);
 
-	/* Init ENABLE signal for l298 */
+	// Init ENABLE signal for l298
 	GPIOInitStruct.GPIO_Pin = PLATFORM_ENABLE_MOTOR2_PIN;
 	GPIO_Init(PLATFORM_ENABLE_MOTOR2_PORT, &GPIOInitStruct);
 
-	/* Init AF output */
+	// Init AF output
 	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_MOTOR2_PIN;
 	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_Init(PLATFORM_PWM_MOTOR2_PORT, &GPIOInitStruct);
 
-	GPIO_PinAFConfig(GPIOE, PLATFORM_PWM_MOTOR2_PIN_SOURCE, PLATFORM_PWM_MOTOR2_GPIO_AF);
-}
+	GPIO_PinAFConfig(PLATFORM_PWM_MOTOR2_PORT, PLATFORM_PWM_MOTOR2_PIN_SOURCE, PLATFORM_PWM_MOTOR2_GPIO_AF);
+}*/
 
 void platform_encoder_init(void) {
 

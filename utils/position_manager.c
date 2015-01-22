@@ -132,5 +132,5 @@ float position_get_y_mm(void) {
 }
 
 int32_t position_mm_to_ticks(float value_mm) {
-	return value_mm * pm.ticks_per_m / 1000.0;
+	return value_mm * pm.ticks_per_m / 1000.f;
 }

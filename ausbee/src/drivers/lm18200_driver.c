@@ -16,16 +16,17 @@
  *
  * Copyright 2013-2014 (C) EIRBOT
  *
- * Authors :    Kevin JOLY <joly.kevin25@gmail.com>
+ * Authors :    Xavier MAUPEU
  *
  **********************************************************************/
-#include "AUSBEE/l298_driver.h"
+#include "AUSBEE/lm18200_driver.h"
 #include "AUSBEE/device.h"
+#include "stdio.h"
 
 #include <stm32f4xx_rcc.h>
 #include <stm32f4xx_gpio.h>
 
-enum AUSBEE_L298_DRIVER_ERROR ausbee_l298_init_chip(struct ausbee_l298_chip* chip)
+void ausbee_lm18200_init_chip(ausbee_lm18200_chip* chip)
 {
 	uint32_t pclk, period;
 	TIM_OCInitTypeDef TIM_OCInitTypeDef_TIMx;
@@ -53,7 +54,7 @@ enum AUSBEE_L298_DRIVER_ERROR ausbee_l298_init_chip(struct ausbee_l298_chip* chi
 	period = pclk / chip->pwm_frequency;
 
 	if (period < 100) {
-		return EINVALID_FREQUENCY;
+		printf("Invalid frequency");
 	}
 
 	/* Init timer */
@@ -79,43 +80,33 @@ enum AUSBEE_L298_DRIVER_ERROR ausbee_l298_init_chip(struct ausbee_l298_chip* chi
 	} else if (chip->timer_channel == 4) {
 		TIM_OC4Init(chip->TIMx, &TIM_OCInitTypeDef_TIMx);
 	} else {
-		return EINVALID_TIMER_CHANNEL;
+		printf("invalid channel");
 	}
 
 	/* Start timer */
 	TIM_Cmd(chip->TIMx, ENABLE);
 
-	ausbee_l298_enable_chip(chip, 0);
-	ausbee_l298_invert_output(chip, 0);
+	ausbee_lm18200_invert_output(chip, 0);
 
-	return ENO_ERROR;
 #else
 #error Function not supported for this device /* TODO */
 #endif 
 }
 
-void ausbee_l298_enable_chip(struct ausbee_l298_chip* chip, uint8_t enable)
-{
-	if (enable) {
-		GPIO_SetBits(chip->gpio_enable_port, chip->gpio_enable_pin);
-	} else {
-		GPIO_ResetBits(chip->gpio_enable_port, chip->gpio_enable_pin);
-	}
-}
 
-void ausbee_l298_invert_output(struct ausbee_l298_chip* chip, uint8_t dir)
+void ausbee_lm18200_invert_output(ausbee_lm18200_chip* chip, uint8_t dir)
 {
-	uint16_t polarity;
+	//uint16_t polarity;
 	if (dir) {
 		GPIO_SetBits(chip->gpio_dir_port, chip->gpio_dir_pin);
-		polarity = TIM_OCPolarity_Low;
+		//polarity = TIM_OCPolarity_Low;
 	}
 	else {
 		GPIO_ResetBits(chip->gpio_dir_port, chip->gpio_dir_pin);
-		polarity = TIM_OCPolarity_High;
+		//polarity = TIM_OCPolarity_High;
 	}
 
-	if (chip->timer_channel == 1) {
+	/*if (chip->timer_channel == 1) {
 		TIM_OC1PolarityConfig(chip->TIMx, polarity);
 	} else if (chip->timer_channel == 2) {
 		TIM_OC2PolarityConfig(chip->TIMx, polarity);
@@ -123,10 +114,10 @@ void ausbee_l298_invert_output(struct ausbee_l298_chip* chip, uint8_t dir)
 		TIM_OC3PolarityConfig(chip->TIMx, polarity);
 	} else if (chip->timer_channel == 4) {
 		TIM_OC4PolarityConfig(chip->TIMx, polarity);
-	}
+	}*/
 }
 
-void ausbee_l298_set_duty_cycle(struct ausbee_l298_chip* chip, uint32_t duty_cycle)
+void ausbee_lm18200_set_duty_cycle(ausbee_lm18200_chip* chip, uint32_t duty_cycle)
 {
 	uint32_t duty;
 

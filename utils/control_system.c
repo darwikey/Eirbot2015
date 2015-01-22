@@ -153,6 +153,11 @@ void control_system_set_angle_deg_ref(float ref_deg)
   ausbee_cs_set_reference(&(am.csm_angle), ref_rad);
 }
 
+void control_system_set_angle_rad_ref(float ref_rad)
+{
+  ausbee_cs_set_reference(&(am.csm_angle), ref_rad);
+}
+
 void control_system_set_right_motor_ref(int32_t ref)
 {
   ausbee_cs_set_reference(&(am.csm_right_motor), ref);
