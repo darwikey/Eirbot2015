@@ -2,6 +2,7 @@
 #include "servo.h"
 #include "l298_driver.h"
 #include "lm18200_driver.h"
+#include "ax12_driver.h"
 #include "position_manager.h"
 #include "smooth_traj_manager.h"
 #include "control_system_debug.h"
@@ -22,6 +23,8 @@ ausbeeServo servo3;
 ausbeeServo servo4;
 ausbee_lm18200_chip motor1;
 ausbee_lm18200_chip motor2;
+ausbee_ax12_chip ax12_1;
+
 
 /* Private function prototypes -----------------------------------------------*/
 void init(void);
@@ -35,6 +38,13 @@ int main(void)
 
 	init();
 
+	/*while(1){
+		printf("adc1 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN));
+		printf("adc2 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));
+		printf("adc3 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC3_PIN));
+		printf("adc4 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC4_PIN));
+	}*/
+
 	//motors_wrapper_test();
 
 	cli_start(); //invité de commande
@@ -44,9 +54,10 @@ int main(void)
 	//send_by_can(1);
 
 
-	smooth_traj_goto_xy_mm(0, 300);
-	smooth_traj_goto_xy_mm(200, 600);
-	smooth_traj_goto_xy_mm(0, 1000);
+	/*smooth_traj_goto_xy_mm(0, 500);
+	smooth_traj_goto_xy_mm(500, 500);*/
+	/*smooth_traj_goto_xy_mm(600, 700);
+	smooth_traj_goto_xy_mm(0, 700);*/
 
 	vTaskStartScheduler();
 
@@ -55,11 +66,14 @@ int main(void)
 		//platform_led_set(PLATFORM_LED0);
 		//for (int i = 0; i < 1000000; i++);
 
-		//platform_led_reset(PLATFORM_LED0);
-		for (int i = 0; i < 500000; i++);
+		platform_led_toggle(PLATFORM_LED0);
+		for (volatile int i = 0; i < 500000; i++);
+		//ausbee_ax12_set_goal(&ax12_1, 300, 0);
+		ausbee_ax12_set_led(&ax12_1, 1);
+
 		//printf("pos  x = %d,  y = %d \n\r", (int)position_get_x_mm(), (int)position_get_y_mm());
 
- 		for (int i = 0; i <360; i++)
+ 		/*for (int i = 0; i <360; i++)
  		{
  			//printf("%d    ", (int)ausbee_lidar_get_distance(i));
  			double d = ausbee_lidar_get_distance(i);
@@ -69,7 +83,7 @@ int main(void)
  			printf("y%d#", (int)(d * sin(angle)));
  		}
 
- 		printf("e\n");
+ 		printf("e\n");*/
 
 
 	}
@@ -93,6 +107,7 @@ void init(void) {
 
 	platform_pwm_init(TIMERALL);
 	platform_led_init();
+	platform_adc_init();
 
 	init_can();
 	init_lidar();
@@ -135,6 +150,9 @@ void init(void) {
 
 	motors_wrapper_init_lm18200(&motor2, &motor1);
 
+	platform_init_AX12(115200);
+	ax12_1.id = 0xFE;
+	ax12_1.usart = UART4;
 
 	printf("end init\n\r");
 }

@@ -6,7 +6,7 @@
 #include "task.h"
 
 #include "position_manager.h"
-#include "trajectory_manager.h"
+#include "smooth_traj_manager.h"
 #include "cli.h"
 #include "platform.h"
 
@@ -137,11 +137,11 @@ void cli_task(void *data)
     }
 
     if (command == 'd') {
-      //trajectory_goto_d_mm(value);
+      smooth_traj_goto_d_mm(value);
       printf("Distance: %f\r\n", (double)value);
     }
     else if (command == 'a') {
-      //trajectory_goto_a_rel_deg(value);
+      smooth_traj_goto_a_deg(value);
       printf("Angle: %f\r\n", (double)value);
     }
     else if (command == 's') {
@@ -161,33 +161,49 @@ void cli_task(void *data)
         control_system_set_speed_ratio(value);
         printf("Speed: %f\r\n", (double)value);
       }
-      else if (!strncmp(arg, "pid_d_P", ARG_LENGTH)) {
+      else if (!strncmp(arg, "pid_d_p", ARG_LENGTH)) {
         ausbee_pid_set_kp(control_system_get_pid_distance(), value);
         printf("Distance P: %f\r\n", (double)value);
       }
-      else if (!strncmp(arg, "pid_d_I", ARG_LENGTH)) {
+      else if (!strncmp(arg, "pid_d_i", ARG_LENGTH)) {
         ausbee_pid_set_ki(control_system_get_pid_distance(), value);
         printf("Distance I: %f\r\n", (double)value);
       }
-      else if (!strncmp(arg, "pid_d_D", ARG_LENGTH)) {
+      else if (!strncmp(arg, "pid_d_d", ARG_LENGTH)) {
         ausbee_pid_set_kd(control_system_get_pid_distance(), value);
         printf("Distance D: %f\r\n", (double)value);
       }
-      else if (!strncmp(arg, "pid_a_P", ARG_LENGTH)) {
+      else if (!strncmp(arg, "pid_a_p", ARG_LENGTH)) {
         ausbee_pid_set_kp(control_system_get_pid_angle(), value);
         printf("Angle P: %f\r\n", (double)value);
       }
-      else if (!strncmp(arg, "pid_a_I", ARG_LENGTH)) {
+      else if (!strncmp(arg, "pid_a_i", ARG_LENGTH)) {
         ausbee_pid_set_ki(control_system_get_pid_angle(), value);
         printf("Angle I: %f\r\n", (double)value);
       }
-      else if (!strncmp(arg, "pid_a_D", ARG_LENGTH)) {
+      else if (!strncmp(arg, "pid_a_d", ARG_LENGTH)) {
         ausbee_pid_set_kd(control_system_get_pid_angle(), value);
         printf("Angle D: %f\r\n", (double)value);
       }
       else if (!strncmp(arg, "axle_track", ARG_LENGTH)) {
         position_set_axle_track_mm((double)value);
         printf("Axle track: %f\r\n", (double)value);
+      }
+      else if (!strncmp(arg, "speed_d", ARG_LENGTH)) {
+       	control_system_set_distance_max_speed((double)value);
+        printf("distance max speed: %f\r\n", (double)value);
+      }
+      else if (!strncmp(arg, "speed_a", ARG_LENGTH)) {
+    	control_system_set_angle_max_speed((double)value);
+        printf("angle max speed: %f\r\n", (double)value);
+      }
+      else if (!strncmp(arg, "acc_d", ARG_LENGTH)) {
+        control_system_set_distance_max_acc((double)value);
+        printf("distance max acceleration: %f\r\n", (double)value);
+      }
+      else if (!strncmp(arg, "acc_a", ARG_LENGTH)) {
+        control_system_set_angle_max_acc((double)value);
+        printf("angle max acceleration: %f\r\n", (double)value);
       }
       else {
         printf("Invalid argument '%s'.\r\n", arg);
@@ -260,13 +276,17 @@ void cli_task(void *data)
       printf("             speed_medium: set medium translation and rotation speed.\r\n");
       printf("             speed_low:    set low translation and rotation speed.\r\n");
       printf("             speed :       set translation and rotation speed ratio to value (0 <= value <= 1).\r\n");
-      printf("             pid_d_P :     set distance PID proportional value.\r\n");
-      printf("             pid_d_I :     set distance PID integral value.\r\n");
-      printf("             pid_d_D :     set distance PID derivative value.\r\n");
-      printf("             pid_a_P :     set angle PID proportional value.\r\n");
-      printf("             pid_a_I :     set angle PID integral value.\r\n");
-      printf("             pid_a_D :     set angle PID derivative value.\r\n");
+      printf("             pid_d_p :     set distance PID proportional value.\r\n");
+      printf("             pid_d_i :     set distance PID integral value.\r\n");
+      printf("             pid_d_d :     set distance PID derivative value.\r\n");
+      printf("             pid_a_p :     set angle PID proportional value.\r\n");
+      printf("             pid_a_i :     set angle PID integral value.\r\n");
+      printf("             pid_a_d :     set angle PID derivative value.\r\n");
       printf("             axle_track :  set axle track in mm.\r\n");
+      printf("             speed_d :     set max speed for distance.\r\n");
+      printf("             speed_a :     set max speed for angle.\r\n");
+      printf("             acc_d :       set max acceleration for distance.\r\n");
+      printf("             acc_a :       set max acceleration for angle.\r\n");
       printf("  m <arg> <arg2> : move an actuator\r\n");
       printf("             <arg> can be one of: \r\n");
       printf("             arm_l: left_arm \r\n");

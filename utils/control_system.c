@@ -37,8 +37,8 @@ static void control_system_set_angle_rad_diff(float ref);
 
 static void control_system_init_distance_angle()
 {
-  ausbee_pid_init(&(am.pid_distance), 0.03, 0.0005, 0.0);// 2.5, 0.5, 0.5
-  ausbee_pid_init(&(am.pid_angle),    0.03, 0.0005, 0.0); //3, 0.05, 0// 2, 0.07, 0.1
+  ausbee_pid_init(&(am.pid_distance), 0.05, 0.0005, 0.0);// 2.5, 0.5, 0.5
+  ausbee_pid_init(&(am.pid_angle),    0.03, 0.0, 0.0); //3, 0.05, 0// 2, 0.07, 0.1
 
   ausbee_pid_set_output_range(&(am.pid_distance), -100, 100);
   ausbee_pid_set_output_range(&(am.pid_angle),  -100, 100);
@@ -59,7 +59,7 @@ static void control_system_init_distance_angle()
                                      DEG2RAD(ANGLE_MAX_ACC_DEG),
                                      DEG2RAD(ANGLE_MAX_ACC_DEG)); // Rotation acceleration (in rad/s^2)
 
-  control_system_set_speed_high(am);
+  control_system_set_speed_high();
 
   // Initialise each control system manager
   ausbee_cs_init(&(am.csm_distance));

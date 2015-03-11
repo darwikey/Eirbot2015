@@ -189,6 +189,13 @@
 #define SERVO3_CHAN TIM_Channel_1
 #define SERVO4_CHAN TIM_Channel_1
 
+/* ADC */
+#define ADC1_PIN GPIO_Pin_3
+#define ADC2_PIN GPIO_Pin_4
+#define ADC3_PIN GPIO_Pin_5
+#define ADC4_PIN GPIO_Pin_10
+#define ADC1234_PORT GPIOF
+
 
 void platform_hse_pll_init(void);
 void platform_led_init(void);
@@ -200,12 +207,16 @@ void platform_led_toggle(uint8_t led);
 
 void platform_gpio_init(uint16_t gpio, uint8_t type, uint8_t mode, uint8_t speed, uint8_t pull_up_down);
 
+void platform_adc_init();
+
 void platform_gpio_set(uint16_t gpio);
 void platform_gpio_reset(uint16_t gpio);
 
 uint8_t platform_gpio_get_value(uint16_t gpio);
 
 int platform_usart_init(USART_TypeDef *USARTx, uint32_t baudrate);
+
+void platform_init_AX12(uint32_t baudrate);
 
 void platform_motor1_init(ausbee_lm18200_chip* motor1);
 void platform_motor2_init(ausbee_lm18200_chip* motor2);

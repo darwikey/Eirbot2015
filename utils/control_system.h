@@ -17,10 +17,10 @@
 
 #define CONTROL_SYSTEM_PERIOD_S 0.02 //0.1 // in s
 
-#define DISTANCE_MAX_SPEED 150//240//240 // in mm/s
-#define DISTANCE_MAX_ACC   300//300 // in mm/s^2
+#define DISTANCE_MAX_SPEED 240 // in mm/s
+#define DISTANCE_MAX_ACC   300 // in mm/s^2
 
-#define ANGLE_MAX_SPEED_DEG 75//180//90 // in deg/s
+#define ANGLE_MAX_SPEED_DEG 90//180//90 // in deg/s
 #define ANGLE_MAX_ACC_DEG   180//360//105 // in deg/s^2
 
 struct control_system {

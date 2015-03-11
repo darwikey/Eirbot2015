@@ -167,6 +167,41 @@ int platform_usart_init(USART_TypeDef *USARTx, uint32_t baudrate) {
 	return 0;
 }
 
+/**
+ * @brief  Initialize USART
+ * @param  baudrate: USART baudrate
+ * @retval None
+ */
+void platform_init_AX12(uint32_t baudrate)
+{
+	GPIO_InitTypeDef init_GPIO_USART;
+	USART_InitTypeDef init_USART;
+
+	USART_StructInit(&init_USART);
+	GPIO_StructInit(&init_GPIO_USART);
+
+	// Enable clock on GPIOBA and USART4 devices
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
+
+	// Select AF mode USART3 for pin A0 and A1
+	init_GPIO_USART.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1;
+	init_GPIO_USART.GPIO_Speed = GPIO_Speed_50MHz;
+	init_GPIO_USART.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_Init(GPIOA, &init_GPIO_USART);
+
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource0, GPIO_AF_UART4);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource1, GPIO_AF_UART4);
+
+	// Init USART 4
+	init_USART.USART_BaudRate = baudrate;
+	init_USART.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+	USART_Init(UART4, &init_USART);
+
+	USART_Cmd(UART4, ENABLE);
+}
+
+
 /* Brief function to initialize GPIO available on the board
  * 
  * gpio         : GPIOX where x is 1 to 9
@@ -390,6 +425,16 @@ void platform_led_init(void) {
 	GPIOInitStruct_G.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIOInitStruct_G.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOG, &GPIOInitStruct_G);
+}
+
+void platform_adc_init(){
+	platform_enable_clock_gpio(ADC1234_PORT);
+
+	GPIO_InitTypeDef init_adc;
+	GPIO_StructInit(&init_adc);
+	init_adc.GPIO_Mode = GPIO_Mode_IN;
+	init_adc.GPIO_Pin = ADC1_PIN | ADC2_PIN | ADC3_PIN | ADC4_PIN;
+	GPIO_Init(ADC1234_PORT, &init_adc);
 }
 
 void platform_led_set(uint8_t led) {
