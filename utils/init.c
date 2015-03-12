@@ -74,7 +74,6 @@ void init_encoders(void)
 	// Timer utilisé pour l'échantillonage
 	platform_enable_clock_timer(TIM8);
 	ausbee_init_sampling_timer(TIM8, 16800, 1000);
-
 	platform_encoder_init();
 }
 

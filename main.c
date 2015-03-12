@@ -4,6 +4,8 @@
 #include "lm18200_driver.h"
 #include "ax12_driver.h"
 #include "position_manager.h"
+#include "trajectory_manager.h"
+#include "astar.h"
 #include "smooth_traj_manager.h"
 #include "control_system_debug.h"
 #include "init.h"
@@ -51,6 +53,7 @@ int main(void)
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
 
+
 	//send_by_can(1);
 
 
@@ -60,7 +63,6 @@ int main(void)
 	smooth_traj_goto_xy_mm(0, 700);*/
 
 	vTaskStartScheduler();
-
 	while (1) {
 
 		//platform_led_set(PLATFORM_LED0);
@@ -211,6 +213,8 @@ void send_by_can(int cmd){
 		}
 	}
 }
+
+
 
 void blink1(void* p)
 {
