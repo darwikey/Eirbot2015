@@ -18,6 +18,7 @@ struct smooth_traj_dest {
   float x;//mm
   float y;//mm
   float a;//rad
+  int backward;//boolean if true go backward
 
   //enum smooth_traj_order_type type;
 };
@@ -31,7 +32,7 @@ struct smooth_traj_manager {
   float previous_waypoint_dist;
 } traj;
 
-
+#define PI 3.1415927f
 #define ABS(x) (((x) < 0)? -(x): (x))
 #define SQUARE(x) ((x)*(x))
 #define DISTANCE(x1, y1, x2, y2) (sqrtf(SQUARE((x1-x2)) + SQUARE((y1-y2))))
@@ -117,11 +118,18 @@ void smooth_traj_resume()
 
 void smooth_traj_goto_xy_mm(float x, float y)
 {
+	// if it's the first point, we turn the robot face to the next point
+	if (smooth_traj_is_ended()){
+		float start_angle = atan2f(-(x - position_get_x_mm()), y - position_get_y_mm());
+		smooth_traj_goto_a_rad(start_angle);
+	}
+
 	struct smooth_traj_dest dest;
 	
 	dest.x = x;
 	dest.y = y;
 	dest.a = UNDEFINED_ANGLE;
+	dest.backward = 0;
 	
 	smooth_traj_add_point(dest, END);
 }
@@ -136,6 +144,8 @@ void smooth_traj_goto_d_mm(float d){
 	dest.y = y + position_get_y_mm();
 	dest.a = UNDEFINED_ANGLE;
 
+	dest.backward = d < 0.0;
+
 	smooth_traj_add_point(dest, END);
 }
 
@@ -143,14 +153,21 @@ void smooth_traj_goto_a_deg(float a){
 	// convert to radian
 	a *= 0.01745329f;
 
+	smooth_traj_goto_a_rad(a);
+}
+
+void smooth_traj_goto_a_rad(float a)
+{
 	struct smooth_traj_dest dest;
 
 	dest.x = position_get_x_mm();
 	dest.y = position_get_y_mm();
 	dest.a = a;
+	dest.backward = 0;
 
 	smooth_traj_add_point(dest, END);
 }
+
 
 /****************** Internal functions ******************/
 
@@ -256,8 +273,15 @@ static inline void smooth_traj_update()
 
 	uint32_t next_id = (traj.cur_id+1) % SMOOTH_TRAJ_MAX_NB_POINTS;
 
+	// it's a rotation
+	if (!IS_UNDEFINED_ANGLE(next1->a))
+	{
+		if (ABS(next1->a - position_get_angle_rad()) < SMOOTH_TRAJ_DEFAULT_PRECISION_A_RAD){
+			smooth_traj_next_point();
+		}
+	}
 	// at least two waypoints
-	if (next_id != traj.last_id)
+	else if (next_id != traj.last_id)
 	{
 		// find the second waypoint
 		struct smooth_traj_dest* next2 = traj.points + next_id;
@@ -302,10 +326,7 @@ static inline void smooth_traj_update()
 		// Waypoint reachs
 		if (next1_dist < SMOOTH_TRAJ_DEFAULT_PRECISION_D_MM)
 		{
-			if (IS_UNDEFINED_ANGLE(next1->a) || ABS(next1->a - position_get_angle_rad()) < SMOOTH_TRAJ_DEFAULT_PRECISION_A_RAD)
-			{
-				smooth_traj_next_point();
-			}
+			smooth_traj_next_point();
 		}
 	}
 
@@ -313,7 +334,8 @@ static inline void smooth_traj_update()
 	// Compute the angle and distance to send to the control system
 	float angle_ref, remaining_dist;
 	// if the robot is close to the end, and he has to have a specified angle
-	if (next_id == traj.last_id && next1_dist < SMOOTH_TRAJ_DEFAULT_PRECISION_D_MM && !IS_UNDEFINED_ANGLE(next1->a))
+	if ((next1_dist < SMOOTH_TRAJ_DEFAULT_PRECISION_D_MM && !IS_UNDEFINED_ANGLE(next1->a))
+			&& (next_id == traj.last_id || (next_id != traj.last_id && ABS(next1->a - position_get_angle_rad()) > SMOOTH_TRAJ_DEFAULT_PRECISION_A_RAD)))
 	{
 		angle_ref = next1->a;
 		remaining_dist = 0.f;
@@ -326,6 +348,21 @@ static inline void smooth_traj_update()
 
 	//printf("tar x:%d  y:%d  dist:%f  a:%f\r\n", (int)target_x, (int)target_y, (double)next1_dist, (double)angle_ref);
 
-	control_system_set_distance_mm_ref(position_get_distance_mm() + remaining_dist);
-	control_system_set_angle_rad_ref(angle_ref);
+	// go backward
+	if (next1->backward)
+	{
+		if (angle_ref >= 0.f){
+			angle_ref -= PI;
+		}
+		else {
+			angle_ref += PI;
+		}
+		control_system_set_distance_mm_ref(position_get_distance_mm() - remaining_dist);
+		control_system_set_angle_rad_ref(angle_ref);
+	}
+	else
+	{
+		control_system_set_distance_mm_ref(position_get_distance_mm() + remaining_dist);
+		control_system_set_angle_rad_ref(angle_ref);
+	}
 }

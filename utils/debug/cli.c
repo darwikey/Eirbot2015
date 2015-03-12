@@ -118,7 +118,7 @@ void cli_task(void *data)
 
     //printf("$ ");
     command = cli_getchar();
-    if (command == 'd' || command == 'a') {
+    if (command == 'd' || command == 'a' || command == 'c') {
       value = cli_getfloat();
     }
     else if (command == 'p') {
@@ -143,6 +143,11 @@ void cli_task(void *data)
     else if (command == 'a') {
       smooth_traj_goto_a_deg(value);
       printf("Angle: %f\r\n", (double)value);
+    }
+    else if (command == 'c') {
+      float y = cli_getfloat();
+      smooth_traj_goto_xy_mm(value, y);
+      printf("Goto xy: %f  %f\r\n", (double)value, (double)y);
     }
     else if (command == 's') {
       if (!strncmp(arg, "speed_high", ARG_LENGTH)) {
@@ -269,6 +274,7 @@ void cli_task(void *data)
       printf("  Available commands are:\r\n");
       printf("  d <float>: Go forward/backward with the specified distance in mm.\r\n");
       printf("  a <float>: Rotate with the specified angle in degrees.\r\n");
+      printf("  c <float> <float>: goto to the position (x,y) in mm.\r\n");
       printf("  s <arg> <value>:   Set internal value.\r\n");
       printf("             <value> should be a float.\r\n");
       printf("             <arg> can be one of:\r\n");

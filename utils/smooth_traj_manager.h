@@ -32,8 +32,8 @@ void smooth_traj_resume();
 
 void smooth_traj_goto_xy_mm(float x, float y);
 
-/*avoid to use that*/
 void smooth_traj_goto_d_mm(float d);
 void smooth_traj_goto_a_deg(float a);
+void smooth_traj_goto_a_rad(float a);
 
 #endif
