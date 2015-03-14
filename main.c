@@ -4,7 +4,6 @@
 #include "lm18200_driver.h"
 #include "ax12_driver.h"
 #include "position_manager.h"
-#include "trajectory_manager.h"
 #include "astar.h"
 #include "smooth_traj_manager.h"
 #include "control_system_debug.h"

@@ -9,7 +9,7 @@ typedef int lidarPoint;
 lidarPoint lDist[360] = { 0 };
 
 //test function
-setDist(uint16_t angle,uint16_t dist)
+void setDist(uint16_t angle,uint16_t dist)
 {
   lDist[angle] = dist;
 }
