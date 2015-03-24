@@ -2,18 +2,29 @@
 #include "stdio.h"
 #include "smooth_traj_manager.h"
 
+typedef struct mvStack
+{
+  uint8_t top;
+  mvStackElement items[STACK_SIZE];
+}mvStack;
+
 //extern uint16_t stack_begin;
 //graphe où sera charge la table et ses obstacles
-node graphe[G_SIZE] = { 0 };
+node graphe[G_SIZE] = {{ 0 }};
 uint16_t startCoor;
 uint16_t goalCoor;
 int stopMovement = 0;
-/*
-unsigned int abs(int val)
-{
-  if (val<0)return -val;
-  else return val;
-}*/
+
+// Fonctions internes
+void polishing(mvStack *s);
+mvStack initStack(void);
+uint8_t stack_is_empty(mvStack *s);
+uint8_t stack_full(mvStack *s);
+uint8_t stack_size(mvStack *s);
+void stack_clear(mvStack *s);
+void push(mvStack *s, mvStackElement item);
+mvStackElement pop(mvStack *s);
+
 
 uint8_t aStarLoop()
 {
@@ -63,7 +74,7 @@ uint8_t aStarLoop()
       break;
     }
     current = findBest(OPENLIST);
-    coor = getCoor(graphe[current]);
+    coor = getCoordinate(graphe[current]);
     printf("(%d,%d) \r\n", (int)coor.x, (int)coor.y);
     //put the analysed node in the closedList
     graphe[current].type = CLOSEDLIST;
@@ -80,11 +91,11 @@ uint8_t aStarLoop()
     printf("path: \n");
     while (current != startCoor)
     {
-      coor = getCoor(graphe[current]);
+      coor = getCoordinate(graphe[current]);
       printf("(%d,%d), ", (int)coor.x, (int)coor.y);
       current = graphe[graphe[current].parent].coor;
     }
-    coor = getCoor(graphe[startCoor]);
+    coor = getCoordinate(graphe[startCoor]);
     printf("(%d,%d), ", (int)coor.x, (int)coor.y);
     return 1;
   }
@@ -92,11 +103,11 @@ uint8_t aStarLoop()
 
 float findDist(node node1, node node2)
 {
-  coordinate c1 = getCoor(node1);
-  coordinate c2 = getCoor(node2);
+  coordinate c1 = getCoordinate(node1);
+  coordinate c2 = getCoordinate(node2);
   //trial with manhattan dist
   //upgrade
-  float dist = sqrt((c1.x - c2.x)*(c1.x - c2.x) + (c1.y - c2.y)*(c1.y - c2.y));
+  float dist = sqrtf((c1.x - c2.x)*(c1.x - c2.x) + (c1.y - c2.y)*(c1.y - c2.y));
 
 
   //we can change with defined dist for the neighbors dist
@@ -185,11 +196,19 @@ uint16_t findBest(uint8_t openlist)
   return best;
 }
 
-coordinate getCoor(node n)
+coordinate getCoordinate(node n)
 {
   coordinate c;
   c.x = n.coor % G_LENGTH;
   c.y = n.coor / G_LENGTH;
+  return c;
+}
+
+coordinate positionMmToCoordinate(float x, float y)
+{
+  coordinate c;
+  c.x = x / (float) UNIT;
+  c.y = y / (float) UNIT;
   return c;
 }
 
@@ -343,6 +362,7 @@ uint8_t stack_is_empty(mvStack *s)
 {
   return !s->top;
 }
+
 void stack_clear(mvStack *s)
 {
   s->top = 0;
@@ -450,14 +470,14 @@ uint16_t get_goalCoor()
   return goalCoor;
 }
 
-void set_startCoor(uint16_t coor)
+void set_startCoor(coordinate coor)
 {
-  startCoor = coor;
+  startCoor = coor.x + G_LENGTH * coor.y;
 }
 
-void set_goalCoor(uint16_t coor)
+void set_goalCoor(coordinate coor)
 {
-  goalCoor = coor;
+  goalCoor = coor.x + G_LENGTH * coor.y;
 }
 
 void stopAstarMovement()
@@ -471,9 +491,12 @@ void putObstacle(uint16_t coor)
   if (coor < G_SIZE && coor >0)
     graphe[coor].type = OBSTACLE;
 }
+
 void deleteObstacle(uint16_t coor)
 {
-  graphe[coor].type = 0;
+	if (coor < G_SIZE){
+		graphe[coor].type = 0;
+	}
 }
 
 void printGraphe(void)

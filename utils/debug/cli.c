@@ -9,6 +9,7 @@
 #include "smooth_traj_manager.h"
 #include "cli.h"
 #include "platform.h"
+#include "astar.h"
 
 
 void cli_task(void *);
@@ -118,7 +119,7 @@ void cli_task(void *data)
 
     //printf("$ ");
     command = cli_getchar();
-    if (command == 'd' || command == 'a' || command == 'c') {
+    if (command == 'd' || command == 'a' || command == 'c' || command == '*') {
       value = cli_getfloat();
     }
     else if (command == 'p') {
@@ -148,6 +149,13 @@ void cli_task(void *data)
       float y = cli_getfloat();
       smooth_traj_goto_xy_mm(value, y);
       printf("Goto xy: %f  %f\r\n", (double)value, (double)y);
+    }
+    else if (command == '*') {
+      float y = cli_getfloat();
+      set_startCoor(positionMmToCoordinate(position_get_x_mm(), position_get_y_mm()));
+      set_goalCoor(positionMmToCoordinate(value, y));
+      printf("Goto xy: %f  %f\r\n", (double)value, (double)y);
+      astarMv();
     }
     else if (command == 's') {
       if (!strncmp(arg, "speed_high", ARG_LENGTH)) {
@@ -247,6 +255,9 @@ void cli_task(void *data)
                                                (double)ausbee_pid_get_ki(control_system_get_pid_angle()),
                                                (double)ausbee_pid_get_kd(control_system_get_pid_angle()));
       }
+      else if (!strncmp(arg, "graph", ARG_LENGTH)) {
+        printGraphe();
+      }
       else {
         printf("Invalid argument '%s'.\r\n", arg);
       }
@@ -274,7 +285,8 @@ void cli_task(void *data)
       printf("  Available commands are:\r\n");
       printf("  d <float>: Go forward/backward with the specified distance in mm.\r\n");
       printf("  a <float>: Rotate with the specified angle in degrees.\r\n");
-      printf("  c <float> <float>: goto to the position (x,y) in mm.\r\n");
+      printf("  c <float> <float>: goto to the position (x, y) in mm.\r\n");
+      printf("  * <float> <float>: goto to the position (x, y) in mm with A*.\r\n");
       printf("  s <arg> <value>:   Set internal value.\r\n");
       printf("             <value> should be a float.\r\n");
       printf("             <arg> can be one of:\r\n");
@@ -311,6 +323,7 @@ void cli_task(void *data)
       printf("             cur_id:   print Traj manager's current point id.\r\n");
       printf("             last_id:  print Traj manager's last point id.\r\n");
       printf("             pid:      print PID.\r\n");
+      printf("             graphe:   print A* graphe.\r\n");
     }
     else {
       printf("Unknown command '%c'. Type 'h' for help.\r\n", command);

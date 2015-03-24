@@ -62,7 +62,9 @@ void smooth_traj_start()
 
 void smooth_traj_end()
 {
-  traj.cur_id = traj.last_id;
+	control_system_set_distance_mm_ref(position_get_distance_mm());
+	control_system_set_angle_rad_ref(position_get_angle_rad());
+	traj.cur_id = traj.last_id;
 }
 
 int smooth_traj_is_ended()

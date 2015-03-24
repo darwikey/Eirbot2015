@@ -18,7 +18,7 @@
 #define G_LENGTH 60
 #define WIDTH (2000 )
 #define G_WIDTH 40
-#define G_SIZE G_WIDTH*G_LENGTH
+#define G_SIZE (G_WIDTH*G_LENGTH)
 #define OUT 0
 #define STACK_SIZE 200
 #define DRIVE 1
@@ -36,9 +36,6 @@ struct node
 };
 
 
-
-
-
 typedef struct coordinate
 {
   uint16_t x;
@@ -47,11 +44,6 @@ typedef struct coordinate
 
 
 typedef coordinate mvStackElement;
-typedef struct mvStack
-{
-  uint8_t top;
-  mvStackElement items[STACK_SIZE];
-}mvStack;
 
 
 
@@ -61,10 +53,13 @@ int8_t isVoid(int8_t list);
 void initNeighbors(uint16_t current, uint16_t *neighbors);
 uint16_t findBest(uint8_t openlist);
 //int findDistC(node node1, node node2);
-coordinate getCoor(node n);
+
+coordinate getCoordinate(node n);
+coordinate positionMmToCoordinate(float x, float y);
 node getNode(uint8_t x, uint8_t y);
+
+
 void initObstacle(void);
-void polishing(mvStack *s);
 int8_t astarMv(void);
 void printGraphe(void);
 void putObstacle(uint16_t coor);
@@ -73,17 +68,10 @@ void clearGraphe(void);
 
 uint16_t get_startCoor(void);
 uint16_t get_goalCoor(void);
-void set_startCoor(uint16_t coor);
-void set_goalCoor(uint16_t coor);
+void set_startCoor(coordinate coor);
+void set_goalCoor(coordinate coor);
 
-//
-mvStack initStack(void);
-uint8_t stack_is_empty(mvStack *s);
-uint8_t stack_full(mvStack *s);
-uint8_t stack_size(mvStack *s);
-void stack_clear(mvStack *s);
-void push(mvStack *s, mvStackElement item);
-mvStackElement pop(mvStack *s);
+
 void stopAstarMovement(void);
 
 //

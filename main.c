@@ -70,7 +70,7 @@ int main(void)
 		platform_led_toggle(PLATFORM_LED0);
 		for (volatile int i = 0; i < 500000; i++);
 		//ausbee_ax12_set_goal(&ax12_1, 300, 0);
-		ausbee_ax12_set_led(&ax12_1, 1);
+		//ausbee_ax12_set_led(&ax12_1, 1);
 
 		//printf("pos  x = %d,  y = %d \n\r", (int)position_get_x_mm(), (int)position_get_y_mm());
 
@@ -122,6 +122,9 @@ void init(void) {
 	// Launching trajectory manager
 	smooth_traj_init();
 	smooth_traj_start();
+
+	// A*
+	initObstacle();
 
 
 #ifdef ENABLE_SERVO
