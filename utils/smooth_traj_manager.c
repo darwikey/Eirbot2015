@@ -44,6 +44,7 @@ struct smooth_traj_manager {
 void smooth_traj_task(void *data);
 static inline void smooth_traj_update();
 static void smooth_traj_add_point(struct smooth_traj_dest point, enum smooth_traj_when when);
+void smooth_traj_goto_target(struct smooth_traj_dest* next_point, float target_x, float target_y);
 
 
 /******************** User functions ********************/
@@ -281,77 +282,87 @@ static inline void smooth_traj_update()
 		if (ABS(next1->a - position_get_angle_rad()) < SMOOTH_TRAJ_DEFAULT_PRECISION_A_RAD){
 			smooth_traj_next_point();
 		}
+		control_system_set_angle_rad_ref(next1->a);
 	}
-	// at least two waypoints
-	else if (next_id != traj.last_id)
+
+	else
 	{
-		// find the second waypoint
-		struct smooth_traj_dest* next2 = traj.points + next_id;
-
-		float d = SMOOTH_TRAJ_STEER_DISTANCE_MM;
-		d -= next1_dist;
-
-		if (d > 0.f)
+		// at least two waypoints
+		if (next_id != traj.last_id)
 		{
-			float direction_x = next2->x - next1->x;
-			float direction_y = next2->y - next1->y;
-			float direction_length = sqrt(SQUARE(direction_x) + SQUARE(direction_y));
-			direction_x = direction_x / direction_length * d;
-			direction_y = direction_y / direction_length * d;
+			// find the second waypoint
+			struct smooth_traj_dest* next2 = traj.points + next_id;
 
-			target_x = next1->x + direction_x;
-			target_y = next1->y + direction_y;
+			float d = SMOOTH_TRAJ_STEER_DISTANCE_MM;
+			d -= next1_dist;
+
+			if (d > 0.f)
+			{
+				float direction_x = next2->x - next1->x;
+				float direction_y = next2->y - next1->y;
+				float direction_length = sqrt(SQUARE(direction_x) + SQUARE(direction_y));
+				direction_x = direction_x / direction_length * d;
+				direction_y = direction_y / direction_length * d;
+
+				target_x = next1->x + direction_x;
+				target_y = next1->y + direction_y;
+			}
+			else // the next waypoint is too far, so it's our target
+			{
+				target_x = next1->x;
+				target_y = next1->y;
+			}
+
+			// if the robot go away the current waypoint, we switch to the next
+			if (next1_dist > traj.previous_waypoint_dist + 35.f)
+			{
+				smooth_traj_next_point();
+			}
+			// compute the nearest distance to the next point
+			if (next1_dist < traj.previous_waypoint_dist){
+				traj.previous_waypoint_dist = next1_dist;
+			}
+
 		}
-		else // the next waypoint is too far, so it's our target
+		// only one more waypoint
+		else
 		{
 			target_x = next1->x;
 			target_y = next1->y;
+
+			// Waypoint reachs
+			if (next1_dist < SMOOTH_TRAJ_DEFAULT_PRECISION_D_MM)
+			{
+				smooth_traj_next_point();
+			}
 		}
 
-		// if the robot go away the current waypoint, we switch to the next
-		if (next1_dist > traj.previous_waypoint_dist + 35.f)
-		{
-			smooth_traj_next_point();
-		}
-		// compute the nearest distance to the next point
-		if (next1_dist < traj.previous_waypoint_dist){
-			traj.previous_waypoint_dist = next1_dist;
-		}
-
+		smooth_traj_goto_target(next1, target_x, target_y);
 	}
-	// only one more waypoint
-	else
-	{
-		target_x = next1->x;
-		target_y = next1->y;
-
-		// Waypoint reachs
-		if (next1_dist < SMOOTH_TRAJ_DEFAULT_PRECISION_D_MM)
-		{
-			smooth_traj_next_point();
-		}
-	}
+}
 
 
+void smooth_traj_goto_target(struct smooth_traj_dest* next_point, float target_x, float target_y)
+{
 	// Compute the angle and distance to send to the control system
-	float angle_ref, remaining_dist;
+	//float angle_ref, remaining_dist;
 	// if the robot is close to the end, and he has to have a specified angle
-	if ((next1_dist < SMOOTH_TRAJ_DEFAULT_PRECISION_D_MM && !IS_UNDEFINED_ANGLE(next1->a))
-			&& (next_id == traj.last_id || (next_id != traj.last_id && ABS(next1->a - position_get_angle_rad()) > SMOOTH_TRAJ_DEFAULT_PRECISION_A_RAD)))
+	/*if ((next_point_distance < SMOOTH_TRAJ_DEFAULT_PRECISION_D_MM && !IS_UNDEFINED_ANGLE(next_point->a))
+			&& (next_id == traj.last_id || (next_id != traj.last_id && ABS(next_point->a - position_get_angle_rad()) > SMOOTH_TRAJ_DEFAULT_PRECISION_A_RAD)))
 	{
-		angle_ref = next1->a;
+		angle_ref = next_point->a;
 		remaining_dist = 0.f;
 	}
-	else
-	{
-		angle_ref = atan2f(-(target_x - position_get_x_mm()), target_y - position_get_y_mm());
-		remaining_dist = DISTANCE(position_get_x_mm(), position_get_y_mm(), target_x, target_y);
-	}
+	else*/
+
+	float angle_ref = atan2f(-(target_x - position_get_x_mm()), target_y - position_get_y_mm());
+	float remaining_dist = DISTANCE(position_get_x_mm(), position_get_y_mm(), target_x, target_y);
+
 
 	//printf("tar x:%d  y:%d  dist:%f  a:%f\r\n", (int)target_x, (int)target_y, (double)next1_dist, (double)angle_ref);
 
 	// go backward
-	if (next1->backward)
+	if (next_point->backward)
 	{
 		if (angle_ref >= 0.f){
 			angle_ref -= PI;

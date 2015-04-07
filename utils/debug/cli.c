@@ -157,6 +157,10 @@ void cli_task(void *data)
       printf("Goto xy: %f  %f\r\n", (double)value, (double)y);
       astarMv();
     }
+    else if (command == 'z') {
+      smooth_traj_end();
+      printf("stop mvt\r\n");
+	}
     else if (command == 's') {
       if (!strncmp(arg, "speed_high", ARG_LENGTH)) {
         control_system_set_speed_high();
