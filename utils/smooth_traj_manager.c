@@ -149,6 +149,8 @@ void smooth_traj_goto_d_mm(float d){
 
 	dest.backward = d < 0.0;
 
+	//smooth_traj_goto_xy_mm(dest.x, dest.y);
+
 	smooth_traj_add_point(dest, END);
 }
 
@@ -364,12 +366,10 @@ void smooth_traj_goto_target(struct smooth_traj_dest* next_point, float target_x
 	// go backward
 	if (next_point->backward)
 	{
-		if (angle_ref >= 0.f){
-			angle_ref -= PI;
-		}
-		else {
+		if (angle_ref < 0.f){
 			angle_ref += PI;
 		}
+
 		control_system_set_distance_mm_ref(position_get_distance_mm() - remaining_dist);
 		control_system_set_angle_rad_ref(angle_ref);
 	}

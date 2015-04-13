@@ -32,26 +32,27 @@ void init(void);
 void blink1(void* p);
 void demo_square_task(void*);
 void send_by_can(int);
-
+void test(void* p);
+void testLidar(void* p);
 
 int main(void)
 {
 
 	init();
 
-	/*while(1){
-		printf("adc1 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN));
-		printf("adc2 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));
-		printf("adc3 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC3_PIN));
-		printf("adc4 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC4_PIN));
-	}*/
+//	while(1){
+//		printf("adc1 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN));
+//		printf("adc2 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));
+//		printf("adc3 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC3_PIN));
+//		printf("adc4 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC4_PIN));
+//	}
 
 	//motors_wrapper_test();
 
 	cli_start(); //invité de commande
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
-
+	//xTaskCreate(test, (const signed char *)"Test", 200, NULL, 2, NULL );
 
 	//send_by_can(1);
 
@@ -60,7 +61,6 @@ int main(void)
 	smooth_traj_goto_xy_mm(500, 500);*/
 	/*smooth_traj_goto_xy_mm(600, 700);
 	smooth_traj_goto_xy_mm(0, 700);*/
-
 	vTaskStartScheduler();
 	while (1) {
 
@@ -70,7 +70,7 @@ int main(void)
 		platform_led_toggle(PLATFORM_LED0);
 		for (volatile int i = 0; i < 500000; i++);
 		//ausbee_ax12_set_goal(&ax12_1, 300, 0);
-		//ausbee_ax12_set_led(&ax12_1, 1);
+		ausbee_ax12_set_led(&ax12_1, 1);
 
 		//printf("pos  x = %d,  y = %d \n\r", (int)position_get_x_mm(), (int)position_get_y_mm());
 
@@ -122,11 +122,9 @@ void init(void) {
 	// Launching trajectory manager
 	smooth_traj_init();
 	smooth_traj_start();
-
-	// A*
+	
+	//init A*
 	initObstacle();
-
-
 #ifdef ENABLE_SERVO
 	ausbeeInitStructServo(&servo1);
 	ausbeeInitStructServo(&servo2);
@@ -216,14 +214,68 @@ void send_by_can(int cmd){
 	}
 }
 
-
-
 void blink1(void* p)
 {
   for (;;) {
     platform_led_toggle(PLATFORM_LED0);
-
     vTaskDelay(1000 / portTICK_RATE_MS); // 1000 ms
   }
 }
 
+void testLidar(void* p)
+{
+	while(1){
+		for (int i = 0; i <360; i++)
+		{
+			//printf("%d    ", (int)ausbee_lidar_get_distance(i));
+			double d = ausbee_lidar_get_distance(i);
+			double angle = (double)i * 0.0174532;// to rad
+			printf("i%d#", (int)(i ));
+			printf("d%lf#",d );
+			printf("x%d#", (int)(d * cos(angle)));
+			printf("y%d#", (int)(d * sin(angle)));
+			printf("--- \n\r");
+			vTaskDelay(10 / portTICK_RATE_MS); // 1000 ms
+		}
+
+		printf("e\n");
+	}
+}
+
+void test(void* p)
+{
+	control_system_set_speed_low();
+	printf("start repositioning \n");
+	smooth_traj_goto_d_mm(400.0);
+	while(!(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN) || !(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN)){
+		printf("adc1 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN));
+		printf("adc2 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));//printf("repositioning ... \n\r");
+		vTaskDelay(50 / portTICK_RATE_MS);
+	}
+	smooth_traj_end();
+	printf("repositioning done");
+	smooth_traj_goto_d_mm(-100.0);
+	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
+	smooth_traj_goto_a_deg(90.0);
+	printf("j'ai bien tourner youpi \n");
+	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
+	smooth_traj_goto_d_mm(400.0);
+	printf("je suis perdu \n");
+	while(!(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN) || !(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN)){
+			printf("adc1 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN));
+			printf("adc2 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));//printf("repositioning ... \n\r");
+			vTaskDelay(50 / portTICK_RATE_MS);
+		}
+	smooth_traj_end();
+	printf("repositioning done");
+	smooth_traj_goto_d_mm(-100.0);
+	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
+	smooth_traj_goto_a_deg(180.0);
+	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
+	printf("test bizarre");
+	smooth_traj_goto_d_mm(200.0);
+	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
+	printf("finish");
+	//ready to go
+ 	while(1)vTaskDelay(100 / portTICK_RATE_MS);
+}
