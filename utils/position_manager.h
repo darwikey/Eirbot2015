@@ -24,8 +24,10 @@ float position_get_right_encoder(void);
 float position_get_distance_mm(void);
 float position_get_angle_rad(void);
 float position_get_angle_deg(void);
+void position_set_angle_deg(float a);
 float position_get_x_mm(void);
 float position_get_y_mm(void);
+void position_set_xy_mm(float x, float y);
 
 int32_t position_mm_to_ticks(float value_mm);
 

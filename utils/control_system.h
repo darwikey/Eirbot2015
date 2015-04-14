@@ -29,8 +29,8 @@ struct control_system {
   struct ausbee_cs csm_distance;
   struct ausbee_cs csm_angle;
 
-  struct ausbee_diff diff_right_motor;
-  struct ausbee_diff diff_left_motor;
+  /*struct ausbee_diff diff_right_motor;
+  struct ausbee_diff diff_left_motor;*/
 
   struct ausbee_pid pid_right_motor;
   struct ausbee_pid pid_left_motor;
@@ -64,5 +64,7 @@ void control_system_set_speed_low();
 
 struct ausbee_pid* control_system_get_pid_distance();
 struct ausbee_pid* control_system_get_pid_angle();
+
+void control_system_reset_angle();
 
 #endif /* CONTROL_SYSTEM_H */

@@ -9,10 +9,11 @@
 #include "position_manager.h"
 #include "encoder.h"
 #include "platform.h"
+#include "control_system.h"
 #include <math.h>
 #include <stdio.h>
 
-#define PI 3.1415926535
+#define PI 3.1415926535f
 
 struct position_manager {
 	uint32_t ticks_per_m;
@@ -120,7 +121,13 @@ float position_get_angle_rad(void) {
 }
 
 float position_get_angle_deg(void) {
-	return pm.angle_rad * 180.0 / PI;
+	return pm.angle_rad * 180.f / PI;
+}
+
+void position_set_angle_deg(float a){
+	pm.angle_rad = a * PI / 180.f;
+	control_system_set_angle_rad_ref(pm.angle_rad);
+	control_system_reset_angle();
 }
 
 float position_get_x_mm(void) {
@@ -129,6 +136,11 @@ float position_get_x_mm(void) {
 
 float position_get_y_mm(void) {
 	return pm.y_mm;
+}
+
+void position_set_xy_mm(float x, float y){
+	pm.x_mm = x;
+	pm.y_mm = y;
 }
 
 int32_t position_mm_to_ticks(float value_mm) {

@@ -52,7 +52,7 @@ int main(void)
 	cli_start(); //invité de commande
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
-	//xTaskCreate(test, (const signed char *)"Test", 200, NULL, 2, NULL );
+	xTaskCreate(test, (const signed char *)"Test", 200, NULL, 2, NULL );
 
 	//send_by_can(1);
 
@@ -277,5 +277,16 @@ void test(void* p)
 	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
 	printf("finish");
 	//ready to go
- 	while(1)vTaskDelay(100 / portTICK_RATE_MS);
+
+	// Repositionnement X, Y, angle
+	vTaskDelay(500 / portTICK_RATE_MS); // 500 ms
+
+ 	position_set_xy_mm(1000.f, 470.f);
+ 	position_set_angle_deg(0.f);
+
+	while(1){
+		vTaskDelay(1000 / portTICK_RATE_MS);
+	}
+
+
 }

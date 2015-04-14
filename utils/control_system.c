@@ -226,3 +226,11 @@ struct ausbee_pid* control_system_get_pid_angle()
 {
 	return &am.pid_angle;
 }
+
+//TODO prendre en compte les angles != 0
+void control_system_reset_angle()
+{
+	am.quadramp_angle.prev_in = 0.f;
+	am.quadramp_angle.prev_out = 0.f;
+	am.quadramp_angle.prev_var = 0.f;
+}

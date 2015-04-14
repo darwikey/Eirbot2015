@@ -13,12 +13,16 @@ enum smooth_traj_when {
   NOW, END
 };
 
+enum smooth_traj_movement{
+	NORMAL, FORWARD, BACKWARD
+};
+
 struct smooth_traj_dest {
  
   float x;//mm
   float y;//mm
   float a;//rad
-  int backward;//boolean if true go backward
+  enum smooth_traj_movement movement;//boolean if true go backward
 
   //enum smooth_traj_order_type type;
 };
@@ -132,7 +136,7 @@ void smooth_traj_goto_xy_mm(float x, float y)
 	dest.x = x;
 	dest.y = y;
 	dest.a = UNDEFINED_ANGLE;
-	dest.backward = 0;
+	dest.movement = NORMAL;
 	
 	smooth_traj_add_point(dest, END);
 }
@@ -147,7 +151,10 @@ void smooth_traj_goto_d_mm(float d){
 	dest.y = y + position_get_y_mm();
 	dest.a = UNDEFINED_ANGLE;
 
-	dest.backward = d < 0.0;
+	if (d >= 0.f)
+		dest.movement = FORWARD;
+	else
+		dest.movement = BACKWARD;
 
 	//smooth_traj_goto_xy_mm(dest.x, dest.y);
 
@@ -168,7 +175,7 @@ void smooth_traj_goto_a_rad(float a)
 	dest.x = position_get_x_mm();
 	dest.y = position_get_y_mm();
 	dest.a = a;
-	dest.backward = 0;
+	dest.movement = NORMAL;
 
 	smooth_traj_add_point(dest, END);
 }
@@ -364,14 +371,15 @@ void smooth_traj_goto_target(struct smooth_traj_dest* next_point, float target_x
 	//printf("tar x:%d  y:%d  dist:%f  a:%f\r\n", (int)target_x, (int)target_y, (double)next1_dist, (double)angle_ref);
 
 	// go backward
-	if (next_point->backward)
+	if (next_point->movement != NORMAL)
 	{
-		if (angle_ref < 0.f){
-			angle_ref += PI;
+		// just asserv in distance
+		if (next_point->movement == BACKWARD){
+			control_system_set_distance_mm_ref(position_get_distance_mm() - remaining_dist);
 		}
-
-		control_system_set_distance_mm_ref(position_get_distance_mm() - remaining_dist);
-		control_system_set_angle_rad_ref(angle_ref);
+		else if (next_point->movement == FORWARD){
+			control_system_set_distance_mm_ref(position_get_distance_mm() + remaining_dist);
+		}
 	}
 	else
 	{
