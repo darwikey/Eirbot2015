@@ -54,8 +54,8 @@
   */
 void ausbeeInitStructServo(ausbeeServo* servo)
 {
-  servo->minValue = 30;
-  servo->maxValue = 105;
+  servo->minValue = 100;//30;
+  servo->maxValue = 200;//105;
   servo->TIMx = TIM2;
   servo->CHANx = TIM_Channel_1;
 }
@@ -68,12 +68,22 @@ void ausbeeInitStructServo(ausbeeServo* servo)
   */
 void ausbeeInitServo(ausbeeServo* servo)
 {
+  TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+  TIM_TimeBaseStructure.TIM_Period = 1999;
+  TIM_TimeBaseStructure.TIM_Prescaler = 812;
+  TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+  TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+
+  TIM_TimeBaseInit(servo->TIMx, &TIM_TimeBaseStructure);
+
+
   TIM_OCInitTypeDef OCInit_PWM; // Create a OCInitTypeDef for PWM
 
   TIM_OCStructInit(&OCInit_PWM);
   OCInit_PWM.TIM_OCMode = TIM_OCMode_PWM1;  // Set PWM Mode
-  OCInit_PWM.TIM_Pulse = 50;                // Duty cycle to 5%
+  OCInit_PWM.TIM_Pulse = 1500;                // Duty cycle to 5%
   OCInit_PWM.TIM_OutputState = TIM_OutputState_Enable;
+
 
   if(servo->CHANx == TIM_Channel_1)
     TIM_OC1Init(servo->TIMx, &OCInit_PWM); // Initialize OSC1
@@ -96,7 +106,7 @@ void ausbeeInitServo(ausbeeServo* servo)
   */
 void ausbeeSetAngleServo(ausbeeServo* servo, uint8_t angle)
 {
-  uint8_t newPulse = angle*(servo->maxValue-servo->minValue)/100 + servo->minValue;  // Compute new pulse value
+  uint32_t newPulse = (uint32_t)angle*(servo->maxValue-servo->minValue)/100 + servo->minValue;  // Compute new pulse value
   if( newPulse >= servo->minValue && newPulse <= servo->maxValue ) // Verify value
     {
       if(servo->CHANx == TIM_Channel_1)

@@ -20,7 +20,7 @@
 
 ausbeeServo servo1;
 ausbeeServo servo2;
-ausbeeServo servo3;
+ausbeeServo servo_clapet;
 ausbeeServo servo4;
 ausbee_lm18200_chip motor1;
 ausbee_lm18200_chip motor2;
@@ -125,27 +125,27 @@ void init(void) {
 	
 	//init A*
 	initObstacle();
-#ifdef ENABLE_SERVO
+
+
 	ausbeeInitStructServo(&servo1);
 	ausbeeInitStructServo(&servo2);
-	ausbeeInitStructServo(&servo3);
+	ausbeeInitStructServo(&servo_clapet);
 	ausbeeInitStructServo(&servo4);
 
 	servo1.TIMx = SERVO1_TIM;
 	servo1.CHANx = SERVO1_CHAN;
 	servo2.TIMx = SERVO2_TIM;
 	servo2.CHANx = SERVO2_CHAN;
-	servo3.TIMx = SERVO3_TIM;
-	servo3.CHANx = SERVO3_CHAN;
+	servo_clapet.TIMx = SERVO3_TIM;
+	servo_clapet.CHANx = SERVO3_CHAN;
 	servo4.TIMx = SERVO4_TIM;
 	servo4.CHANx = SERVO4_CHAN;
 
 	ausbeeInitServo(&servo1);
 	ausbeeInitServo(&servo2);
-	ausbeeInitServo(&servo3);
+	ausbeeInitServo(&servo_clapet);
 	ausbeeInitServo(&servo4);
 
-#endif
 
 	platform_motor1_init(&motor1);
 	platform_motor2_init(&motor2);
@@ -216,10 +216,16 @@ void send_by_can(int cmd){
 
 void blink1(void* p)
 {
-  for (;;) {
-    platform_led_toggle(PLATFORM_LED0);
-    vTaskDelay(1000 / portTICK_RATE_MS); // 1000 ms
-  }
+	int i = 0;
+	for (;;) {
+		platform_led_toggle(PLATFORM_LED0);
+//		ausbeeSetAngleServo(&servo1, (uint8_t)(i %100));
+//		ausbeeSetAngleServo(&servo2, (uint8_t)(i %100));
+//		ausbeeSetAngleServo(&servo_clapet, (uint8_t)(i %100));
+//		ausbeeSetAngleServo(&servo4, (uint8_t)(i %100));
+//		i+=10;
+		vTaskDelay(1000 / portTICK_RATE_MS); // 1000 ms
+	}
 }
 
 void testLidar(void* p)
@@ -242,16 +248,23 @@ void testLidar(void* p)
 	}
 }
 
+void wait_inter(){
+	while((int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN) || !(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC3_PIN))
+	{
+		printf("adc2 : %d\n\r", !(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));
+		printf("adc3 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC3_PIN));//printf("repositioning ... \n\r");
+		vTaskDelay(50 / portTICK_RATE_MS);
+	}
+}
+
 void test(void* p)
 {
 	control_system_set_speed_low();
 	printf("start repositioning \n");
 	smooth_traj_goto_d_mm(400.0);
-	while(!(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN) || !(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN)){
-		printf("adc1 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN));
-		printf("adc2 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));//printf("repositioning ... \n\r");
-		vTaskDelay(50 / portTICK_RATE_MS);
-	}
+
+	wait_inter();
+
 	smooth_traj_end();
 	printf("repositioning done");
 	smooth_traj_goto_d_mm(-100.0);
@@ -261,11 +274,9 @@ void test(void* p)
 	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
 	smooth_traj_goto_d_mm(400.0);
 	printf("je suis perdu \n");
-	while(!(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN) || !(int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN)){
-			printf("adc1 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN));
-			printf("adc2 : %d\n\r", (int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC2_PIN));//printf("repositioning ... \n\r");
-			vTaskDelay(50 / portTICK_RATE_MS);
-		}
+
+	wait_inter();
+
 	smooth_traj_end();
 	printf("repositioning done");
 	smooth_traj_goto_d_mm(-100.0);
@@ -284,9 +295,12 @@ void test(void* p)
  	position_set_xy_mm(1000.f, 470.f);
  	position_set_angle_deg(0.f);
 
+	smooth_traj_goto_d_mm(200.0);
+	while(!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
+
 	while(1){
 		vTaskDelay(1000 / portTICK_RATE_MS);
 	}
 
-
+	ausbeeSetAngleServo(&servo_clapet, 90);
 }

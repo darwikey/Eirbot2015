@@ -11,6 +11,7 @@ typedef struct mvStack
 //extern uint16_t stack_begin;
 //graphe où sera charge la table et ses obstacles
 node graphe[G_SIZE] = {{ 0 }};
+mvStack stack;//pile d'instructions
 uint16_t startCoor;
 uint16_t goalCoor;
 int stopMovement = 0;
@@ -207,8 +208,8 @@ coordinate getCoordinate(node n)
 coordinate positionMmToCoordinate(float x, float y)
 {
   coordinate c;
-  c.x = x / (float) UNIT;
-  c.y = y / (float) UNIT;
+  c.x = y / (float) UNIT;
+  c.y = x / (float) UNIT;
   return c;
 }
 
@@ -247,7 +248,7 @@ void polishing(mvStack *s)
   push(s, e);
   while (current.coor != startCoor)
   {
-    graphe[current.coor].type = 7;//à enlever
+//    graphe[current.coor].type = 7;//à enlever
     printf("polishing %d %d \n", (int)current.coor, (int)type);
     if (current.parent == current.coor - 1 * G_LENGTH - 1 && type!=0)//0
       //012
@@ -316,10 +317,7 @@ void polishing(mvStack *s)
 
       type = 7;
     }
-    else
-    {
-      printf("Error path not found\n");
-    }
+
     current = graphe[current.parent];
   }
   push(s, e);
@@ -381,9 +379,6 @@ mvStack initStack(void)
 }
 
 
-
-mvStack stack;//pile d'instructions
-
 int8_t astarMv()
 {
   stopMovement = 0;
@@ -430,15 +425,21 @@ int8_t astarMv()
   currentElement.y = startCoor / G_LENGTH;
   printf(" begin stack \n");
   
-  smooth_traj_goto_xy_mm(UNIT * currentElement.y, UNIT * currentElement.x);
-  printf("Add point (%d,%d) \n", UNIT * (startCoor % G_LENGTH),  UNIT * (startCoor / G_LENGTH) );
+//  smooth_traj_goto_xy_mm(UNIT * currentElement.y, UNIT * currentElement.x);
+//  printf("Add point (%d,%d) \n", UNIT * (startCoor % G_LENGTH),  UNIT * (startCoor / G_LENGTH) );
   //printf("start: %d \n", startCoor%G_LENGTH);
-
+  //currentElement = pop(&stack);
+  int first = 2;
   while (currentElement.x != 0 && currentElement.y != 0 && !stopMovement)
   {
+	if (first <= 0){
+		smooth_traj_goto_xy_mm(UNIT * currentElement.y, UNIT * currentElement.x);
+	    printf("Add point (%d,%d) \n", UNIT * currentElement.y, UNIT * currentElement.x);
+
+	}
+	first--;
+
     currentElement = pop(&stack);
-    smooth_traj_goto_xy_mm(UNIT * currentElement.y, UNIT * currentElement.x);
-    printf("Add point (%d,%d) \n", UNIT * currentElement.x, UNIT * currentElement.y);
     //printf("stackelement:%d,%d \n", currentElement.x, currentElement.y);
     
   }

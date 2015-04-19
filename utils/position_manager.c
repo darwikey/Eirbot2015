@@ -51,7 +51,7 @@ void position_update()
 	pm.left_encoder += left_enc_diff;
 	pm.right_encoder += right_enc_diff;
 
-	/*if (left_enc_diff != 0) {
+	if (left_enc_diff != 0) {
 		platform_led_toggle(PLATFORM_LED2);
 		printf("encG : %d   (sumG : %d)\n\r", (int)left_enc_diff, (int)pm.left_encoder);
 	}
@@ -59,7 +59,7 @@ void position_update()
 	if (right_enc_diff != 0) {
 		platform_led_toggle(PLATFORM_LED3);
 		printf("encD : %d   (sumD : %d)\n\r", (int)right_enc_diff, (int)pm.right_encoder);
-	}*/
+	}
 
 
 	// Distance
