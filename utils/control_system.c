@@ -180,12 +180,12 @@ void control_system_set_distance_max_acc(float max_acc)
 
 void control_system_set_angle_max_speed(float max_speed)
 {
-  ausbee_quadramp_set_1st_order_vars(&(am.quadramp_angle), max_speed, max_speed);
+  ausbee_quadramp_set_1st_order_vars(&(am.quadramp_angle), DEG2RAD(max_speed), DEG2RAD(max_speed));
 }
 
 void control_system_set_angle_max_acc(float max_acc)
 {
-  ausbee_quadramp_set_2nd_order_vars(&(am.quadramp_angle), max_acc, max_acc);
+  ausbee_quadramp_set_2nd_order_vars(&(am.quadramp_angle), DEG2RAD(max_acc), DEG2RAD(max_acc));
 }
 
 void control_system_set_speed_ratio(float ratio)
@@ -199,7 +199,7 @@ void control_system_set_speed_ratio(float ratio)
 
   control_system_set_distance_max_speed(ratio*DISTANCE_MAX_SPEED); // Translation speed (in mm/s)
 
-  control_system_set_angle_max_speed(DEG2RAD(ratio*ANGLE_MAX_SPEED_DEG)); // Rotation speed (in rad/s)
+  control_system_set_angle_max_speed(ratio*ANGLE_MAX_SPEED_DEG); // Rotation speed (in rad/s)
 }
 
 void control_system_set_speed_high()

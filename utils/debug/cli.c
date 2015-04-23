@@ -333,6 +333,6 @@ void cli_task(void *data)
       printf("Unknown command '%c'. Type 'h' for help.\r\n", command);
     }
 
-    vTaskDelay(1 / portTICK_RATE_MS);
+    vTaskDelay(100 / portTICK_RATE_MS);
   }
 }

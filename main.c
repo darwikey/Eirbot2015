@@ -52,7 +52,7 @@ int main(void)
 	cli_start(); //invité de commande
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
-	xTaskCreate(test, (const signed char *)"Test", 200, NULL, 2, NULL );
+	//xTaskCreate(test, (const signed char *)"Test", 200, NULL, 2, NULL );
 
 	//send_by_can(1);
 
@@ -259,7 +259,10 @@ void wait_inter(){
 
 void test(void* p)
 {
+	// reduit vitesse et acceleration
 	control_system_set_speed_low();
+	//control_system_set_distance_max_acc();
+
 	printf("start repositioning \n");
 	smooth_traj_goto_d_mm(400.0);
 
