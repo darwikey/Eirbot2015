@@ -216,7 +216,7 @@ void send_by_can(int cmd){
 
 void blink1(void* p)
 {
-	int i = 0;
+	//int i = 0;
 	for (;;) {
 		platform_led_toggle(PLATFORM_LED0);
 //		ausbeeSetAngleServo(&servo1, (uint8_t)(i %100));

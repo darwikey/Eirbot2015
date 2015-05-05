@@ -51,6 +51,7 @@ void control_system_debug_task(void *data)
     //printf("Robot x mm: %f;   y mm: %f      ", (double)position_get_x_mm(), (double)position_get_y_mm());
     //printf("EncG: %d   EncD: %d\r\n", (int)position_get_left_encoder(), (int)position_get_right_encoder());
 
-    vTaskDelay(CONTROL_SYSTEM_PERIOD_S * 1000 / portTICK_RATE_MS);
+    vTaskDelay(1000 / portTICK_RATE_MS);
+    //vTaskDelay(CONTROL_SYSTEM_PERIOD_S * 1000 / portTICK_RATE_MS);
   }
 }
