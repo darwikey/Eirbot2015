@@ -45,7 +45,7 @@ void position_init(uint32_t ticks_per_m, double axle_track_mm) {
 void position_update()
 {
 	// Reading encoder value
-	int16_t left_enc_diff = ausbee_encoder_get_diff(PLATFORM_ENC2_TIMER);
+	int16_t left_enc_diff = -ausbee_encoder_get_diff(PLATFORM_ENC2_TIMER);
 	int16_t right_enc_diff = -ausbee_encoder_get_diff(PLATFORM_ENC1_TIMER);
 
 	pm.left_encoder += left_enc_diff;
