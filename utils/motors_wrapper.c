@@ -49,13 +49,13 @@ void motors_wrapper_motor_set_duty_cycle(enum motor id_motor, float duty_cycle)
 	void* motor = NULL;
 	uint8_t* moving_forward = NULL;
 
-	/*if (duty_cycle > 60)
+	/*if (duty_cycle > 30)
 	{
-		duty_cycle = 60;
+		duty_cycle = 30;
 	}
-	else if(duty_cycle < -60)
+	else if(duty_cycle < -30)
 	{
-		duty_cycle = -60;
+		duty_cycle = -30;
 	}*/
 
 	if (id_motor == LEFT_MOTOR) {

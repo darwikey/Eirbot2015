@@ -37,8 +37,8 @@ static void control_system_set_angle_rad_diff(float ref);
 
 static void control_system_init_distance_angle()
 {
-  ausbee_pid_init(&(am.pid_distance), 0.04, 0.0005, 0.0);// 2.5, 0.5, 0.5
-  ausbee_pid_init(&(am.pid_angle),    0.02, 0.0002, 0.0); //3, 0.05, 0// 2, 0.07, 0.1
+  ausbee_pid_init(&(am.pid_distance), 0.04, 0.0005, 0.0);
+  ausbee_pid_init(&(am.pid_angle),  0.02, 0.0002, 0.0);
 
   ausbee_pid_set_output_range(&(am.pid_distance), -100, 100);
   ausbee_pid_set_output_range(&(am.pid_angle),  -100, 100);
@@ -118,6 +118,8 @@ void control_system_task(void *data)
 static void control_system_set_motors_ref(float d_mm, float theta)
 {
   uint32_t axle_track_mm = position_get_axle_track_mm();
+
+  d_mm = -d_mm;
 
   int32_t right_motor_ref = position_mm_to_ticks(d_mm + (1.0 * axle_track_mm * theta) / 2);
   int32_t left_motor_ref  = position_mm_to_ticks(d_mm - (1.0 * axle_track_mm * theta) / 2);

@@ -16,7 +16,7 @@ void cli_task(void *);
 
 void cli_start()
 {
-  xTaskCreate(cli_task, (const signed char *)"CLI", 1000, NULL, 1, NULL );
+  xTaskCreate(cli_task, (const signed char *)"CLI", 200, NULL, 1, NULL );
 }
 
 static int cli_getchar(void)
