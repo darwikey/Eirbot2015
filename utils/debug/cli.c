@@ -10,7 +10,12 @@
 #include "cli.h"
 #include "platform.h"
 #include "astar.h"
+#include "servo.h"
+#include "actions.h"
 
+
+extern ausbeeServo servo_clapet;
+extern ausbeeServo servo_grip;
 
 void cli_task(void *);
 
@@ -267,18 +272,26 @@ void cli_task(void *data)
       }
     }
     else if (command == 'm'){
-      if (!strncmp(arg, "arm_l", ARG_LENGTH)) {
-        if (!strncmp(arg2, "open", ARG_LENGTH)) {
-          //ouvrir_bras_gauche();
-          printf("Left arm open\r\n");
+      if (!strncmp(arg, "lift", ARG_LENGTH)) {
+        if (!strncmp(arg2, "up", ARG_LENGTH)) {
+          action_raise_lift();
+          printf("Lift up\r\n");
         }
-        else if (!strncmp(arg2, "close", ARG_LENGTH)) {
-          //fermer_bras_gauche();
-          printf("Left arm close\r\n");
+        else if (!strncmp(arg2, "down", ARG_LENGTH)) {
+          action_lower_lift();
+          printf("Lift down\r\n");
         }
         else {
           printf("Invalid argument '%s'.\r\n", arg2);
         }
+      }
+      else if (!strncmp(arg, "grip", ARG_LENGTH)) {
+    	  ausbeeSetAngleServo(&servo_grip, atoi(arg2));
+    	  printf("command servo.\r\n");
+      }
+      else if (!strncmp(arg, "clapet", ARG_LENGTH)) {
+		  ausbeeSetAngleServo(&servo_clapet, atoi(arg2));
+		  printf("command servo.\r\n");
       }
       else {
         printf("Invalid argument '%s'.\r\n", arg);

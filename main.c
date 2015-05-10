@@ -16,15 +16,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cli.h"
+#include "actions.h"
 
 
-ausbeeServo servo1;
-ausbeeServo servo2;
-ausbeeServo servo_clapet;
-ausbeeServo servo4;
 ausbee_lm18200_chip motor1;
 ausbee_lm18200_chip motor2;
-ausbee_ax12_chip ax12_1;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -34,6 +30,7 @@ void demo_square_task(void*);
 void send_by_can(int);
 void test(void* p);
 void testLidar(void* p);
+void test_lift(void* p);
 
 int main(void)
 {
@@ -53,8 +50,7 @@ int main(void)
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
 	//xTaskCreate(test, (const signed char *)"Test", 200, NULL, 2, NULL );
-
-	//send_by_can(1);
+	//xTaskCreate(test_lift, (const signed char *)"Test", 200, NULL, 2, NULL );
 
 
 	/*smooth_traj_goto_xy_mm(0, 500);
@@ -70,7 +66,7 @@ int main(void)
 		platform_led_toggle(PLATFORM_LED0);
 		for (volatile int i = 0; i < 500000; i++);
 		//ausbee_ax12_set_goal(&ax12_1, 300, 0);
-		ausbee_ax12_set_led(&ax12_1, 1);
+		//ausbee_ax12_set_led(&ax12_1, 1);
 
 		//printf("pos  x = %d,  y = %d \n\r", (int)position_get_x_mm(), (int)position_get_y_mm());
 
@@ -126,35 +122,15 @@ void init(void) {
 	//init A*
 	initObstacle();
 
-
-	ausbeeInitStructServo(&servo1);
-	ausbeeInitStructServo(&servo2);
-	ausbeeInitStructServo(&servo_clapet);
-	ausbeeInitStructServo(&servo4);
-
-	servo1.TIMx = SERVO1_TIM;
-	servo1.CHANx = SERVO1_CHAN;
-	servo2.TIMx = SERVO2_TIM;
-	servo2.CHANx = SERVO2_CHAN;
-	servo_clapet.TIMx = SERVO3_TIM;
-	servo_clapet.CHANx = SERVO3_CHAN;
-	servo4.TIMx = SERVO4_TIM;
-	servo4.CHANx = SERVO4_CHAN;
-
-	ausbeeInitServo(&servo1);
-	ausbeeInitServo(&servo2);
-	ausbeeInitServo(&servo_clapet);
-	ausbeeInitServo(&servo4);
-
-
+	init_actions();
 	platform_motor1_init(&motor1);
 	platform_motor2_init(&motor2);
 
 	motors_wrapper_init_lm18200(&motor2, &motor1);
 
-	platform_init_AX12(115200);
+	/*platform_init_AX12(115200);
 	ax12_1.id = 0xFE;
-	ax12_1.usart = UART4;
+	ax12_1.usart = UART4;*/
 
 	printf("end init\n\r");
 }
@@ -305,5 +281,14 @@ void test(void* p)
 		vTaskDelay(1000 / portTICK_RATE_MS);
 	}
 
-	ausbeeSetAngleServo(&servo_clapet, 90);
+	//ausbeeSetAngleServo(&servo_clapet, 90);
+}
+
+
+void test_lift(void* p)
+{
+
+	while(1){
+		vTaskDelay(1000 / portTICK_RATE_MS);
+	}
 }

@@ -54,8 +54,8 @@
   */
 void ausbeeInitStructServo(ausbeeServo* servo)
 {
-  servo->minValue = 100;//30;
-  servo->maxValue = 200;//105;
+  servo->minValue = 70;//100;
+  servo->maxValue = 250;//200;
   servo->TIMx = TIM2;
   servo->CHANx = TIM_Channel_1;
 }
@@ -71,6 +71,9 @@ void ausbeeInitServo(ausbeeServo* servo)
   TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
   TIM_TimeBaseStructure.TIM_Period = 1999;
   TIM_TimeBaseStructure.TIM_Prescaler = 812;
+#ifdef SLOW_MCU
+  TIM_TimeBaseStructure.TIM_Prescaler /= 5;
+#endif
   TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
   TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
 
