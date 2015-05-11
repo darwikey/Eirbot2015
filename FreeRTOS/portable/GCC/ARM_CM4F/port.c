@@ -668,7 +668,11 @@ __attribute__(( weak )) void vPortSetupTimerInterrupt( void )
 	#endif /* configUSE_TICKLESS_IDLE */
 
 	/* Configure SysTick to interrupt at the requested rate. */
+#ifdef SLOW_MCU
+	portNVIC_SYSTICK_LOAD_REG = ( 18000000 / configTICK_RATE_HZ ) - 1UL;//( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;;
+#else
 	portNVIC_SYSTICK_LOAD_REG = ( configSYSTICK_CLOCK_HZ / configTICK_RATE_HZ ) - 1UL;;
+#endif
 	portNVIC_SYSTICK_CTRL_REG = portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT;
 }
 /*-----------------------------------------------------------*/

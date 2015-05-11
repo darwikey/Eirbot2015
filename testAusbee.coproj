@@ -18,6 +18,7 @@
           <Define name="USE_STDPERIPH_DRIVER"/>
           <Define name="__ASSEMBLY__"/>
           <Define name="__FPU_USED"/>
+          <Define name="SLOW_MCU"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -87,8 +88,8 @@
     <File name="utils/astar.h" path="utils/astar.h" type="1"/>
     <File name="cmsis_lib/source/stm32f4xx_usart.c" path="cmsis_lib/source/stm32f4xx_usart.c" type="1"/>
     <File name="cmsis_lib/include/stm32f4xx_usart.h" path="cmsis_lib/include/stm32f4xx_usart.h" type="1"/>
-    <File name="cmsis_boot/stm32f4xx.h" path="cmsis_boot/stm32f4xx.h" type="1"/>
     <File name="cmsis/core_cm4_simd.h" path="cmsis/core_cm4_simd.h" type="1"/>
+    <File name="cmsis_boot/stm32f4xx.h" path="cmsis_boot/stm32f4xx.h" type="1"/>
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="ausbee/lm18200_driver.c" path="ausbee/src/drivers/lm18200_driver.c" type="1"/>
     <File name="utils/platform.h" path="utils/platform.h" type="1"/>
@@ -104,11 +105,12 @@
     <File name="cmsis_lib/include/stm32f4xx_rcc.h" path="cmsis_lib/include/stm32f4xx_rcc.h" type="1"/>
     <File name="utils/motors_wrapper.c" path="utils/motors_wrapper.c" type="1"/>
     <File name="FreeRTOS/queue.c" path="FreeRTOS/queue.c" type="1"/>
-    <File name="FreeRTOS/heap_2.c" path="FreeRTOS/heap_2.c" type="1"/>
     <File name="cmsis_boot/startup/startup_stm32f4xx.c" path="cmsis_boot/startup/startup_stm32f4xx.c" type="1"/>
+    <File name="utils/actions.c" path="utils/actions.c" type="1"/>
+    <File name="FreeRTOS/heap_2.c" path="FreeRTOS/heap_2.c" type="1"/>
     <File name="cmsis_lib/source/stm32f4xx_rcc.c" path="cmsis_lib/source/stm32f4xx_rcc.c" type="1"/>
-    <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
     <File name="ausbee/ax12_driver.h" path="ausbee/include/AUSBEE/ax12_driver.h" type="1"/>
+    <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
     <File name="FreeRTOS/list.h" path="FreeRTOS/include/list.h" type="1"/>
     <File name="utils/motors_wrapper.h" path="utils/motors_wrapper.h" type="1"/>
     <File name="FreeRTOS/StackMacros.h" path="FreeRTOS/include/StackMacros.h" type="1"/>
@@ -122,6 +124,7 @@
     <File name="cmsis" path="" type="2"/>
     <File name="cmsis_lib" path="" type="2"/>
     <File name="utils/debug/cli.h" path="utils/debug/cli.h" type="1"/>
+    <File name="utils/actions.h" path="utils/actions.h" type="1"/>
     <File name="FreeRTOS/FreeRTOS.h" path="FreeRTOS/include/FreeRTOS.h" type="1"/>
     <File name="utils/astar.c" path="utils/astar.c" type="1"/>
     <File name="cmsis_lib/include/stm32f4xx_can.h" path="cmsis_lib/include/stm32f4xx_can.h" type="1"/>
@@ -150,9 +153,9 @@
     <File name="ausbee/lidar.c" path="ausbee/src/drivers/lidar.c" type="1"/>
     <File name="utils/position_manager.h" path="utils/position_manager.h" type="1"/>
     <File name="cmsis_boot/stm32f4xx_conf.h" path="cmsis_boot/stm32f4xx_conf.h" type="1"/>
-    <File name="FreeRTOS/projdefs.h" path="FreeRTOS/include/projdefs.h" type="1"/>
     <File name="ausbee/ax12_driver.c" path="ausbee/src/drivers/ax12_driver.c" type="1"/>
     <File name="cmsis_boot/system_stm32f4xx.h" path="cmsis_boot/system_stm32f4xx.h" type="1"/>
+    <File name="FreeRTOS/projdefs.h" path="FreeRTOS/include/projdefs.h" type="1"/>
     <File name="FreeRTOS/timers.c" path="FreeRTOS/timers.c" type="1"/>
     <File name="ausbee/control_system_manager.c" path="ausbee/src/control_system/control_system_manager.c" type="1"/>
     <File name="ausbee/quadramp.c" path="ausbee/src/control_system/filters/quadramp.c" type="1"/>

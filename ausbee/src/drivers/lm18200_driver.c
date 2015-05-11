@@ -60,7 +60,7 @@ void ausbee_lm18200_init_chip(ausbee_lm18200_chip* chip)
 	/* Init timer */
 	TIM_TimeBaseInitTypeDef_TIMx.TIM_Prescaler = 0;
 	TIM_TimeBaseInitTypeDef_TIMx.TIM_CounterMode = TIM_CounterMode_Up;
-	TIM_TimeBaseInitTypeDef_TIMx.TIM_Period = period;
+	TIM_TimeBaseInitTypeDef_TIMx.TIM_Period = period / 2;
 
 	TIM_TimeBaseInit(chip->TIMx, &TIM_TimeBaseInitTypeDef_TIMx);
 

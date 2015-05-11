@@ -26,7 +26,9 @@ void cli_start()
 
 static int cli_getchar(void)
 {
-  while (USART_GetFlagStatus(PLATFORM_USART_PRINTF, USART_IT_RXNE) == 0);
+  while (USART_GetFlagStatus(PLATFORM_USART_PRINTF, USART_IT_RXNE) == 0){
+	  vTaskDelay(100 / portTICK_RATE_MS);
+  }
 
   int c = USART_ReceiveData(PLATFORM_USART_PRINTF);
 
