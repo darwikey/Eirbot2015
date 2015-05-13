@@ -16,6 +16,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cli.h"
+#include "timers.h"
 
 
 ausbeeServo servo1;
@@ -52,7 +53,7 @@ int main(void)
 	cli_start(); //invité de commande
 	xTaskCreate(blink1, (const signed char *)"LED1", 100, NULL, 1, NULL );
 	//xTaskCreate(demo_square_task, (const signed char *)"DemoSquare", 100, NULL, 1, NULL );
-	//xTaskCreate(test, (const signed char *)"Test", 200, NULL, 2, NULL );
+	xTaskCreate(testLidar, (const signed char *)"Test", 200, NULL, 2, NULL );
 
 	//send_by_can(1);
 
@@ -61,6 +62,8 @@ int main(void)
 	smooth_traj_goto_xy_mm(500, 500);*/
 	/*smooth_traj_goto_xy_mm(600, 700);
 	smooth_traj_goto_xy_mm(0, 700);*/
+
+	//start_match();
 	vTaskStartScheduler();
 	while (1) {
 
@@ -113,6 +116,7 @@ void init(void) {
 	init_can();
 	init_lidar();
 	init_encoders();
+	init_timer();
 	position_init(41826, 315);
 
 	// Launching control system
@@ -234,10 +238,10 @@ void testLidar(void* p)
 		for (int i = 0; i <360; i++)
 		{
 			//printf("%d    ", (int)ausbee_lidar_get_distance(i));
-			double d = ausbee_lidar_get_distance(i);
+			int d = ausbee_lidar_get_distance(i);
 			double angle = (double)i * 0.0174532;// to rad
 			printf("i%d#", (int)(i ));
-			printf("d%lf#",d );
+			printf("d%d#",d );
 			printf("x%d#", (int)(d * cos(angle)));
 			printf("y%d#", (int)(d * sin(angle)));
 			printf("--- \n\r");
@@ -248,17 +252,56 @@ void testLidar(void* p)
 	}
 }
 
-void tirette(){
-	while(1)
-	{
-		 xTimers[ x ] = xTimerCreate(     "Timer",         // Just a text name, not used by the kernel.
-		                                          ( 100 * x ),     // The timer period in ticks.
-		                                          pdTRUE,         // The timers will auto-reload themselves when they expire.
-		                                          ( void * ) x,     // Assign each timer a unique id equal to its array index.
-		                                          vTimerCallback     // Each timer calls the same callback when it expires.
-		                                      );
-		vTaskDelay(50 / portTICK_RATE_MS);
-	}
+ long lExpireCounter = 0;
+void vTimerCallback( xTimerHandle pxTimer )
+ {
+
+ const long xMaxExpiryCountBeforeStopping = 900;
+
+ 	   // Optionally do something if the pxTimer parameter is NULL.
+ 	   configASSERT( pxTimer );
+
+
+ 	 platform_led_toggle(PLATFORM_LED7);
+ 	 // Increment the number of times that pxTimer has expired.
+     lExpireCounter += 1;
+
+     // If the timer has expired 10 times then stop it from running.
+     if( lExpireCounter == xMaxExpiryCountBeforeStopping )
+     {
+         // Do not use a block time if calling a timer API function from a
+         // timer callback function, as doing so could cause a deadlock!
+         xTimerStop( pxTimer, 0 );
+     }
+ }
+xTimerHandle xTimer;
+void init_timer()
+{
+	printf("start \n\r");
+	xTimer = xTimerCreate("Timer",( 100 / portTICK_RATE_MS), pdTRUE, ( void * )1, vTimerCallback);
+	printf("start timer test \n\r");
+}
+
+void start_match(){
+
+	while((int)GPIO_ReadInputDataBit(ADC1234_PORT, ADC1_PIN))vTaskDelay(500 / portTICK_RATE_MS);
+		if( xTimer == NULL )
+		          {
+						printf("ca marche pas 1 \n\r");
+		              // The timer was not created.
+		          }
+		          else
+		          {
+		        	  printf("ca marche peut etre \n\r");
+		              // Start the timer.  No block time is specified, and even if one was
+		              // it would be ignored because the scheduler has not yet been
+		              // started.
+		              if( xTimerStart( xTimer, 0 ) != pdPASS )
+		              {
+		            	  printf("en fait non \n\r");
+		                  // The timer could not be set into the Active state.
+		              }
+		          }
 }
 
 void wait_inter(){
@@ -272,6 +315,9 @@ void wait_inter(){
 
 void test(void* p)
 {
+
+	start_match();
+	//while(1)vTaskDelay(500 / portTICK_RATE_MS);
 	// reduit vitesse et acceleration
 	control_system_set_speed_low();
 	//control_system_set_distance_max_acc();
