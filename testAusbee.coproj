@@ -35,7 +35,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="0x00010000" startValue="0x10000000"/>
         </MemoryAreas>
-        <LocateLinkFile path="../../configuration/programdata/mainboard/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="c:/coocox/coide/configuration/programdata/mainboard/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -107,9 +107,9 @@
     <File name="FreeRTOS/heap_2.c" path="FreeRTOS/heap_2.c" type="1"/>
     <File name="cmsis_boot/startup/startup_stm32f4xx.c" path="cmsis_boot/startup/startup_stm32f4xx.c" type="1"/>
     <File name="cmsis_lib/source/stm32f4xx_rcc.c" path="cmsis_lib/source/stm32f4xx_rcc.c" type="1"/>
+    <File name="FreeRTOS/list.h" path="FreeRTOS/include/list.h" type="1"/>
     <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
     <File name="ausbee/ax12_driver.h" path="ausbee/include/AUSBEE/ax12_driver.h" type="1"/>
-    <File name="FreeRTOS/list.h" path="FreeRTOS/include/list.h" type="1"/>
     <File name="utils/motors_wrapper.h" path="utils/motors_wrapper.h" type="1"/>
     <File name="FreeRTOS/StackMacros.h" path="FreeRTOS/include/StackMacros.h" type="1"/>
     <File name="utils/debug/cli.c" path="utils/debug/cli.c" type="1"/>
@@ -150,9 +150,9 @@
     <File name="ausbee/lidar.c" path="ausbee/src/drivers/lidar.c" type="1"/>
     <File name="utils/position_manager.h" path="utils/position_manager.h" type="1"/>
     <File name="cmsis_boot/stm32f4xx_conf.h" path="cmsis_boot/stm32f4xx_conf.h" type="1"/>
+    <File name="cmsis_boot/system_stm32f4xx.h" path="cmsis_boot/system_stm32f4xx.h" type="1"/>
     <File name="FreeRTOS/projdefs.h" path="FreeRTOS/include/projdefs.h" type="1"/>
     <File name="ausbee/ax12_driver.c" path="ausbee/src/drivers/ax12_driver.c" type="1"/>
-    <File name="cmsis_boot/system_stm32f4xx.h" path="cmsis_boot/system_stm32f4xx.h" type="1"/>
     <File name="FreeRTOS/timers.c" path="FreeRTOS/timers.c" type="1"/>
     <File name="ausbee/control_system_manager.c" path="ausbee/src/control_system/control_system_manager.c" type="1"/>
     <File name="ausbee/quadramp.c" path="ausbee/src/control_system/filters/quadramp.c" type="1"/>
