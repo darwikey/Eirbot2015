@@ -1,6 +1,8 @@
 ﻿#include "astar.h"
 #include "stdio.h"
 #include "smooth_traj_manager.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 typedef struct mvStack
 {
@@ -15,6 +17,7 @@ mvStack stack;//pile d'instructions
 uint16_t startCoor;
 uint16_t goalCoor;
 int stopMovement = 0;
+uint8_t isAstar = 0;
 
 // Fonctions internes
 void polishing(mvStack *s);
@@ -42,7 +45,7 @@ uint8_t aStarLoop()
   }
 
   printf("start algorithme \r\n");
-  while (graphe[goalCoor].type != CLOSEDLIST)//closed list is nodes which are already analysed
+  while (graphe[goalCoor].type != CLOSEDLIST && !stopMovement)//closed list is nodes which are already analysed
   {
     printf("current %d \r\n", current);
     //init neighbors
@@ -90,12 +93,12 @@ uint8_t aStarLoop()
 
     //reconstruct the path
     printf("path: \n");
-    while (current != startCoor)
-    {
-      coor = getCoordinate(graphe[current]);
-      printf("(%d,%d), ", (int)coor.x, (int)coor.y);
-      current = graphe[graphe[current].parent].coor;
-    }
+//    while (current != startCoor && !stopMovement && )
+//    {
+//      coor = getCoordinate(graphe[current]);
+//      printf("(%d,%d), ", (int)coor.x, (int)coor.y);
+//      current = graphe[graphe[current].parent].coor;
+//    }
     coor = getCoordinate(graphe[startCoor]);
     printf("(%d,%d), ", (int)coor.x, (int)coor.y);
     return 1;
@@ -224,16 +227,23 @@ void initObstacle()
   for (int i = 0; i < G_LENGTH; i++)
   {
     graphe[i].type = OBSTACLE;
+    graphe[i + G_LENGTH].type = OBSTACLE;
+    graphe[i + 2*G_LENGTH].type = OBSTACLE;
+    graphe[i + G_SIZE - 3*G_LENGTH].type = OBSTACLE;
+    graphe[i + G_SIZE - 2*G_LENGTH].type = OBSTACLE;
+    graphe[i + G_SIZE - G_LENGTH].type = OBSTACLE;
   }
-  for (int j = 0; j < G_WIDTH; j++)
+  for (int j = 0; j < G_WIDTH - 1; j++)
   {
-    graphe[j*G_LENGTH].type = OBSTACLE;
+	    graphe[j*G_LENGTH].type = OBSTACLE;
+	    graphe[1 + j*G_LENGTH].type = OBSTACLE;
+	    graphe[2 + j*G_LENGTH].type = OBSTACLE;
+	    graphe[j*G_LENGTH + G_LENGTH - 1].type = OBSTACLE;
+	    graphe[j*G_LENGTH + G_LENGTH - 2].type = OBSTACLE;
+	    graphe[j*G_LENGTH + G_LENGTH - 3].type = OBSTACLE;
   }
 
-  for (int j = 15; j < G_WIDTH; j++)
-  {
-    graphe[j*G_LENGTH + 30].type = OBSTACLE;
-  }
+
 }
 
 
@@ -246,7 +256,7 @@ void polishing(mvStack *s)
   e.x = 0;
   e.y = 0;
   push(s, e);
-  while (current.coor != startCoor)
+  while (current.coor != startCoor && !stopMovement)
   {
 //    graphe[current.coor].type = 7;//à enlever
     printf("polishing %d %d \n", (int)current.coor, (int)type);
@@ -382,6 +392,7 @@ mvStack initStack(void)
 int8_t astarMv()
 {
   stopMovement = 0;
+  isAstar = 1;
   printf("A \n");
   //disableAvoidance();
   //set_detection_behaviour(BEHAVIOUR_ASTAR);
@@ -445,18 +456,19 @@ int8_t astarMv()
   }
 
   //enableAvoidance();
-  //while (!trajectory_is_ended());
+  while (!smooth_traj_is_ended())vTaskDelay(100 / portTICK_RATE_MS);
   printf("end stack \n");
 
   if (stopMovement)
   {
+	isAstar = 0;
     return 0;
   }
 
   printf("succeed \n");
   //set_detection_behaviour(BEHAVIOUR_STOP);
 
-
+  isAstar = 0;
   return 1;
 }
 
@@ -484,13 +496,26 @@ void set_goalCoor(coordinate coor)
 void stopAstarMovement()
 {
   stopMovement = 1;
+  smooth_traj_end();
   stack_clear(&stack);
+  printf("movement stopped");
 }
 
 void putObstacle(uint16_t coor)
 {
-  if (coor < G_SIZE && coor >0)
-    graphe[coor].type = OBSTACLE;
+  if (coor < G_SIZE - G_LENGTH && coor > G_LENGTH && graphe[coor].type != OBSTACLE){
+	printf("obstacle added in %d, %d \n ",coor%G_LENGTH,coor/G_LENGTH);
+	graphe[coor].type = OBSTACLE;
+
+    graphe[coor + 1].type = OBSTACLE;
+    graphe[coor -1].type = OBSTACLE;
+    graphe[coor + 1 + G_LENGTH].type = OBSTACLE;
+    graphe[coor - 1 + G_LENGTH].type = OBSTACLE;
+    graphe[coor + G_LENGTH].type = OBSTACLE;
+    graphe[coor - 1 - G_LENGTH].type = OBSTACLE;
+    graphe[coor + 1 - G_LENGTH].type = OBSTACLE;
+    graphe[coor - G_LENGTH].type = OBSTACLE;
+  }
 }
 
 void deleteObstacle(uint16_t coor)
@@ -530,4 +555,40 @@ void clearGraphe(void)
     /* code */
     graphe[i].type = 0;
   }
+}
+
+//from mm to a* coor
+uint16_t getCoor(uint16_t x, uint16_t y)
+{
+	if(x > 0 && x < LENGTH && y > 0 && y < WIDTH)
+	{
+	uint16_t coor = x / UNIT + (y/UNIT)*G_LENGTH;
+	coor += ((x%UNIT)*2)/UNIT + (((x%UNIT)*2)/UNIT)*G_LENGTH;
+	return coor;
+	}
+	return -1;
+}
+
+uint8_t isTrajectoryValid(void)
+{
+	uint16_t current = goalCoor;
+
+	while (current != startCoor && graphe[current].type != OBSTACLE)
+	{
+	  current = graphe[graphe[current].parent].coor;
+	}
+	if(graphe[current].type != OBSTACLE)
+		return 0;
+	else
+		return 1;
+}
+uint8_t isObstacle(uint16_t coor)
+{
+	if(coor < G_SIZE && coor > 0)
+		return graphe[coor].type == OBSTACLE;
+	else return 1;
+}
+uint8_t isOnAstar(void)
+{
+	return isAstar;
 }

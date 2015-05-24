@@ -27,6 +27,7 @@ void smooth_traj_next_point();
 uint32_t smooth_traj_get_cur_id();
 uint32_t smooth_traj_get_last_id();
 
+int smooth_traj_is_paused();
 void smooth_traj_pause();
 void smooth_traj_resume();
 

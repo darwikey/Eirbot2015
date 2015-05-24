@@ -79,7 +79,7 @@ void init_encoders(void)
 
 void init_lidar()
 {
-  platform_usart_init(USART1,115200);
+  platform_usart_init(USART1, 115200);
   init_usart1_interrupt();
 
 

@@ -34,6 +34,7 @@ struct smooth_traj_manager {
   uint32_t cur_id;
   uint32_t last_id;
   float previous_waypoint_dist;
+  int pause;
 } traj;
 
 #define PI 3.1415927f
@@ -58,6 +59,7 @@ void smooth_traj_init()
   traj.cur_id = 0;
   traj.last_id = 0;
   traj.previous_waypoint_dist = 1.E20f;
+  traj.pause = 0;
 }
 
 void smooth_traj_start()
@@ -98,29 +100,19 @@ uint32_t smooth_traj_get_last_id()
 
 /******************** Movement functions ********************/
 
-static int smooth_traj_is_paused()
+int smooth_traj_is_paused()
 {
-	//TODO
-	return 0;
+	return traj.pause;
 }
 
 void smooth_traj_pause()
 {
-  if (!smooth_traj_is_paused()) {
-      /*TODOstruct smooth_traj_dest dest;
-      dest.type = PAUSE;
-      smooth_traj_add_point(dest, NOW);*/
-  }
-
-  /* Force update now to stop more quickly */
-  smooth_traj_update(traj);
+	traj.pause = 1;
 }
 
 void smooth_traj_resume()
 {
-  while (smooth_traj_is_paused()) {
-    smooth_traj_next_point();
-  }
+	traj.pause = 0;
 }
 
 void smooth_traj_goto_xy_mm(float x, float y)

@@ -24,7 +24,6 @@ void TIM8_UP_TIM13_IRQHandler(void) {
 }
 
 void USART1_IRQHandler(void) {
-
 	//verifie le flag d'interruption
 	if (USART_GetITStatus(USART1, USART_IT_RXNE) == SET) {
 

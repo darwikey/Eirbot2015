@@ -2,7 +2,7 @@
  *
  * \file platform.c
  * \brief Platform support implementation for AUSBEE mainboard V0.1
- * \authors Kevin JOLY <joly.kevin25@gmail.com> Vincent FAURE <vincenr.hr.faure@gmail.com>
+ * \authors Kevin JOLY <joly.kevin25@gmail.com> Vincent FAURE <vincenr.hr.faure@gmail.com> Xavier Maupeu
  *
  */
 
@@ -17,6 +17,8 @@
 //Private functions
 void platform_motor1_init_io(void);
 void platform_motor2_init_io(void);
+void platform_ausbee_motor1_init_io(void);
+void platform_ausbee_motor2_init_io(void);
 
 void platform_hse_pll_init(void) {
 	RCC_DeInit();
@@ -567,98 +569,98 @@ void platform_motor2_init_io(void)
 
 
 // Motor config for L298
-/*void platform_motor1_init(struct ausbee_l298_chip* motor1) {
+void platform_ausbee_motor1_init(struct ausbee_l298_chip* motor1) {
 	motor1->timer_channel = 1;
-	motor1->gpio_enable_pin = PLATFORM_ENABLE_MOTOR1_PIN;
-	motor1->gpio_dir_pin = PLATFORM_DIR_MOTOR1_PIN;
+	motor1->gpio_enable_pin = PLATFORM_ENABLE_AUSBEE_MOTOR1_PIN;
+	motor1->gpio_dir_pin = PLATFORM_DIR_AUSBEE_MOTOR1_PIN;
 	motor1->pwm_frequency = 10000;
-	motor1->gpio_dir_port = PLATFORM_DIR_MOTOR1_PORT;
-	motor1->gpio_enable_port = PLATFORM_ENABLE_MOTOR1_PORT;
-	motor1->TIMx = PLATFORM_TIMER_MOTOR1;
-	platform_motor1_init_io();
+	motor1->gpio_dir_port = PLATFORM_DIR_AUSBEE_MOTOR1_PORT;
+	motor1->gpio_enable_port = PLATFORM_ENABLE_AUSBEE_MOTOR1_PORT;
+	motor1->TIMx = PLATFORM_TIMER_AUSBEE_MOTOR1;
+	platform_ausbee_motor1_init_io();
 
 	enum AUSBEE_L298_DRIVER_ERROR error;
-	error = ausbee_l298_init_chip(*motor1);
+	error = ausbee_l298_init_chip(motor1);
 	if (error!=ENO_ERROR)
 		printf("erreur motor1");
 	//  platform_led_toggle(PLATFORM_LED2);
-	ausbee_l298_enable_chip(*motor1, 1);
+	ausbee_l298_enable_chip(motor1, 1);
 }
 
-void platform_motor2_init(struct ausbee_l298_chip* motor2) {
+void platform_ausbee_motor2_init(struct ausbee_l298_chip* motor2) {
 	motor2->timer_channel = 2;
-	motor2->gpio_enable_pin = PLATFORM_ENABLE_MOTOR2_PIN;
-	motor2->gpio_dir_pin = PLATFORM_DIR_MOTOR2_PIN;
+	motor2->gpio_enable_pin = PLATFORM_ENABLE_AUSBEE_MOTOR2_PIN;
+	motor2->gpio_dir_pin = PLATFORM_DIR_AUSBEE_MOTOR2_PIN;
 	motor2->pwm_frequency = 10000;
-	motor2->gpio_dir_port = PLATFORM_DIR_MOTOR2_PORT;
-	motor2->gpio_enable_port = PLATFORM_ENABLE_MOTOR2_PORT;
-	motor2->TIMx = PLATFORM_TIMER_MOTOR2;
-	platform_motor2_init_io();
+	motor2->gpio_dir_port = PLATFORM_DIR_AUSBEE_MOTOR2_PORT;
+	motor2->gpio_enable_port = PLATFORM_ENABLE_AUSBEE_MOTOR2_PORT;
+	motor2->TIMx = PLATFORM_TIMER_AUSBEE_MOTOR2;
+	platform_ausbee_motor2_init_io();
 
-	ausbee_l298_init_chip(*motor2);
+	ausbee_l298_init_chip(motor2);
 	//if (error==ENO_ERROR)
 	//  platform_led_toggle(PLATFORM_LED2);
-	ausbee_l298_enable_chip(*motor2, 1);
+	ausbee_l298_enable_chip(motor2, 1);
 }
 
-void platform_motor1_init_io(void) {
+void platform_ausbee_motor1_init_io(void) {
 	// Set clocks
-	platform_enable_clock_timer(PLATFORM_TIMER_MOTOR1);
-	platform_enable_clock_gpio(PLATFORM_ENABLE_MOTOR1_PORT);
-	platform_enable_clock_gpio(PLATFORM_DIR_MOTOR1_PORT);
-	platform_enable_clock_gpio(PLATFORM_PWM_MOTOR1_PORT);
+	platform_enable_clock_timer(PLATFORM_TIMER_AUSBEE_MOTOR1);
+	platform_enable_clock_gpio(PLATFORM_ENABLE_AUSBEE_MOTOR1_PORT);
+	platform_enable_clock_gpio(PLATFORM_DIR_AUSBEE_MOTOR1_PORT);
+	platform_enable_clock_gpio(PLATFORM_PWM_AUSBEE_MOTOR1_PORT);
 
 	GPIO_InitTypeDef GPIOInitStruct;
 	GPIO_StructInit(&GPIOInitStruct);
-	GPIOInitStruct.GPIO_Pin = PLATFORM_DIR_MOTOR1_PIN;
+	GPIOInitStruct.GPIO_Pin = PLATFORM_DIR_AUSBEE_MOTOR1_PIN;
 	GPIOInitStruct.GPIO_Mode = GPIO_Mode_OUT;
 	GPIOInitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_Init(PLATFORM_DIR_MOTOR1_PORT, &GPIOInitStruct);
+	GPIO_Init(PLATFORM_DIR_AUSBEE_MOTOR1_PORT, &GPIOInitStruct);
 
 	// Init ENABLE for L298
-	GPIOInitStruct.GPIO_Pin = PLATFORM_ENABLE_MOTOR1_PIN;
-	GPIO_Init(PLATFORM_ENABLE_MOTOR1_PORT, &GPIOInitStruct);
+	GPIOInitStruct.GPIO_Pin = PLATFORM_ENABLE_AUSBEE_MOTOR1_PIN;
+	GPIO_Init(PLATFORM_ENABLE_AUSBEE_MOTOR1_PORT, &GPIOInitStruct);
 
 	// Init AF output
-	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_MOTOR1_PIN;
+	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_AUSBEE_MOTOR1_PIN;
 	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_Init(PLATFORM_PWM_MOTOR1_PORT, &GPIOInitStruct);
+	GPIO_Init(PLATFORM_PWM_AUSBEE_MOTOR1_PORT, &GPIOInitStruct);
 
-	GPIO_PinAFConfig(PLATFORM_PWM_MOTOR1_PORT, PLATFORM_PWM_MOTOR1_PIN_SOURCE, PLATFORM_PWM_MOTOR1_GPIO_AF);
+	GPIO_PinAFConfig(PLATFORM_PWM_AUSBEE_MOTOR1_PORT, PLATFORM_PWM_AUSBEE_MOTOR1_PIN_SOURCE, PLATFORM_PWM_AUSBEE_MOTOR1_GPIO_AF);
 	
 	//useless?
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM9, ENABLE);
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOE, ENABLE);
 }
 
-void platform_motor2_init_io(void)
+void platform_ausbee_motor2_init_io(void)
 {
 	// Set clocks
-	platform_enable_clock_timer(PLATFORM_TIMER_MOTOR2);
-	platform_enable_clock_gpio(PLATFORM_ENABLE_MOTOR2_PORT);
-	platform_enable_clock_gpio(PLATFORM_DIR_MOTOR2_PORT);
-	platform_enable_clock_gpio(PLATFORM_PWM_MOTOR2_PORT);
+	platform_enable_clock_timer(PLATFORM_TIMER_AUSBEE_MOTOR2);
+	platform_enable_clock_gpio(PLATFORM_ENABLE_AUSBEE_MOTOR2_PORT);
+	platform_enable_clock_gpio(PLATFORM_DIR_AUSBEE_MOTOR2_PORT);
+	platform_enable_clock_gpio(PLATFORM_PWM_AUSBEE_MOTOR2_PORT);
 
 
 	// Init DIR signal for L298
 	GPIO_InitTypeDef GPIOInitStruct;
 	GPIO_StructInit(&GPIOInitStruct);
-	GPIOInitStruct.GPIO_Pin = PLATFORM_DIR_MOTOR2_PIN;
+	GPIOInitStruct.GPIO_Pin = PLATFORM_DIR_AUSBEE_MOTOR2_PIN;
 	GPIOInitStruct.GPIO_Mode = GPIO_Mode_OUT;
 	GPIOInitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_Init(PLATFORM_DIR_MOTOR2_PORT, &GPIOInitStruct);
+	GPIO_Init(PLATFORM_DIR_AUSBEE_MOTOR2_PORT, &GPIOInitStruct);
 
 	// Init ENABLE signal for l298
-	GPIOInitStruct.GPIO_Pin = PLATFORM_ENABLE_MOTOR2_PIN;
-	GPIO_Init(PLATFORM_ENABLE_MOTOR2_PORT, &GPIOInitStruct);
+	GPIOInitStruct.GPIO_Pin = PLATFORM_ENABLE_AUSBEE_MOTOR2_PIN;
+	GPIO_Init(PLATFORM_ENABLE_AUSBEE_MOTOR2_PORT, &GPIOInitStruct);
 
 	// Init AF output
-	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_MOTOR2_PIN;
+	GPIOInitStruct.GPIO_Pin = PLATFORM_PWM_AUSBEE_MOTOR2_PIN;
 	GPIOInitStruct.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_Init(PLATFORM_PWM_MOTOR2_PORT, &GPIOInitStruct);
+	GPIO_Init(PLATFORM_PWM_AUSBEE_MOTOR2_PORT, &GPIOInitStruct);
 
-	GPIO_PinAFConfig(PLATFORM_PWM_MOTOR2_PORT, PLATFORM_PWM_MOTOR2_PIN_SOURCE, PLATFORM_PWM_MOTOR2_GPIO_AF);
-}*/
+	GPIO_PinAFConfig(PLATFORM_PWM_AUSBEE_MOTOR2_PORT, PLATFORM_PWM_AUSBEE_MOTOR2_PIN_SOURCE, PLATFORM_PWM_AUSBEE_MOTOR2_GPIO_AF);
+}
 
 void platform_encoder_init(void) {
 

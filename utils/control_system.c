@@ -18,6 +18,7 @@
 #include <AUSBEE/pid.h>
 
 #include "position_manager.h"
+#include "smooth_traj_manager.h"
 #include "motors_wrapper.h"
 #include "control_system.h"
 #include "platform.h"
@@ -38,7 +39,7 @@ static void control_system_set_angle_rad_diff(float ref);
 static void control_system_init_distance_angle()
 {
   ausbee_pid_init(&(am.pid_distance), 0.04, 0.0005, 0.0);
-  ausbee_pid_init(&(am.pid_angle),  0.02, 0.0002, 0.0);
+  ausbee_pid_init(&(am.pid_angle),  0.02, 0.0004, 0.0);
 
   ausbee_pid_set_output_range(&(am.pid_distance), -100, 100);
   ausbee_pid_set_output_range(&(am.pid_angle),  -100, 100);
@@ -99,15 +100,24 @@ void control_system_task(void *data)
 
 	for (;;)
 	{
-		platform_led_toggle(PLATFORM_LED1);
 
 		position_update();
 
-		ausbee_cs_manage(&(am.csm_distance));
-		ausbee_cs_manage(&(am.csm_angle));
+		if (smooth_traj_is_paused())
+		{
+			// don't move
+			motors_wrapper_motor_set_duty_cycle(RIGHT_MOTOR, 0);
+			motors_wrapper_motor_set_duty_cycle(LEFT_MOTOR, 0);
+		}
+		else
+		{
+			platform_led_toggle(PLATFORM_LED1);
 
-		control_system_set_motors_ref(am.distance_mm_diff, am.angle_rad_diff);
+			ausbee_cs_manage(&(am.csm_distance));
+			ausbee_cs_manage(&(am.csm_angle));
 
+			control_system_set_motors_ref(am.distance_mm_diff, am.angle_rad_diff);
+		}
 		//ausbee_cs_manage(&(am.csm_right_motor));
 		//ausbee_cs_manage(&(am.csm_left_motor));
 

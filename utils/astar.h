@@ -65,14 +65,14 @@ void printGraphe(void);
 void putObstacle(uint16_t coor);
 void deleteObstacle(uint16_t coor);
 void clearGraphe(void);
-
+uint16_t getCoor(uint16_t x, uint16_t y);
 uint16_t get_startCoor(void);
 uint16_t get_goalCoor(void);
 void set_startCoor(coordinate coor);
 void set_goalCoor(coordinate coor);
-
-
+uint8_t isOnAstar(void);
+uint8_t isTrajectoryValid(void);
 void stopAstarMovement(void);
-
+uint8_t isObstacle(uint16_t coor);
 //
 #endif
